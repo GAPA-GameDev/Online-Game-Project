@@ -11,7 +11,22 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
 
     public GameObject FollowGO;
 
+    
+
     public float speed = 6f;
+
+    //gravity vars
+
+    public float gravity = -9.81f;
+
+    [SerializeField]
+    Vector3 velocity;
+
+    public Transform groundCheck;
+    public float groundDistance=0.4f;
+    public LayerMask groundMask;
+
+    bool isGrounded;
 
     [SerializeField]
    private Vector3 AimingPoint;
@@ -30,8 +45,16 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertiacal = Input.GetAxisRaw("Vertical");
         Vector3 direction = new Vector3(horizontal, 0f, vertiacal).normalized;
+        
+        isGrounded = Physics.CheckSphere(groundCheck.position,groundDistance,groundMask);
 
 
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2;
+        }
+             
+        
 
         //ROTATE PLAYER TOWARDS MOUSE  WORLD POSITION   
 
@@ -71,6 +94,10 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
 
         }
 
+
+       
+      
+
         //MOVE
         if (direction.magnitude>=0.1f)
         {
@@ -80,13 +107,13 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
 
         }
 
+        velocity.y += gravity * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
 
 
 
-        
-       
-        
-        
+
+
     }
 
 
