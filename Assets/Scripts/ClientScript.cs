@@ -20,7 +20,6 @@ public class ClientScript : MonoBehaviour
 
     private bool socketReady;
     private UdpClient socket;
-    private NetworkStream stream;
     
 
     public void ConnectToServer()
@@ -63,12 +62,13 @@ public class ClientScript : MonoBehaviour
         if (socketReady)
         {
 
-
-            if (stream.DataAvailable)
+            if (socket.Client.Poll(1000, SelectMode.SelectWrite))
             {
 
                 var message = new ClientMessage(); //Created Message struct in order to pass serialized data
-                message = DeserializeMessage(stream);//Deserialize data, in order to use it 
+
+
+                
 
                 OnIncomingData(message);
 
@@ -128,7 +128,7 @@ public class ClientScript : MonoBehaviour
             var message = new ClientMessage();//new struct unfilled with data
             message.messageContent = data; // defining properties:
             message.clientName = clientName;
-            SerializeMessage(stream, message); // Serialize message
+            //SerializeMessage(stream, message); // Serialize message
 
 
         }
@@ -189,6 +189,7 @@ public class ClientScript : MonoBehaviour
     {
         public string messageContent;
         public string clientName;
+        public int clientUid;
         //color
     }
 
