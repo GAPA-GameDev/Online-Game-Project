@@ -17,12 +17,52 @@ public enum ClientState
 
 enum MessageType
 {
-
+    OBJECT_STATE,
+    GAME_STATE,
+    CONNECTION_STATE,
+    UNKNOWN
 }
+public class ByteConstants
+{
+    public byte X_POSITION_MASK = 0b_0000_0001;
+    public byte Y_POSITION_MASK = 0b_0000_0010;
+    public byte Z_POSITION_MASK = 0b_0000_0100;
+}
+class ClientInfo
+{
+    //non modifyable
+    public string playerID;
 
+    //modifyable
+    public float x, y, z;
+}
 class TransformMessage
 {
     public Transform newTransform;
+}
+
+class BinarySerializer
+{
+    //COMMAND STRUCTURE
+    // - Opening character: "#"
+    // - Header: packet size | player identifyer (network ID) | packet type (Object state, Game state or Connection state)
+    //   maybe adding a packet identifyer to the header could be useful to check if it has arrived to the other user that would send
+    //   an immediate response communicationg the packet that just arrived. May also help with redundant packets;
+    //   just check and compare the packet id, and you'll know if it has already been received or not.
+    // - Contents: 
+    public void SerializeCommands()
+    {
+        byte[] resp = new byte[2048];
+        var memStream = new MemoryStream();
+
+
+
+        using (BinaryWriter writer = new BinaryWriter(memStream)) //let's use a memory stream for the moment
+        {
+            writer.Write("#");
+            //writer.Write();
+        }
+    }
 }
 
 public class Peer2PeerClient : MonoBehaviour
@@ -138,9 +178,6 @@ public class Peer2PeerClient : MonoBehaviour
 
                 break;
         }
-
-
-
     }
 
     public void OnLogin() //This is called when the login button is pressed
@@ -168,48 +205,9 @@ public class Peer2PeerClient : MonoBehaviour
             }
             catch
             {
-                Debug.Log(string.Concat(clientName,": Other client is not available yet"));
+                Debug.Log(string.Concat(clientName, ": Other client is not available yet"));
             }
-            
-
-            
-        }
-    }
-
-
-    //COMMAND STRUCTURE
-    // - Opening character: "#"
-    // - Header: packet size | player identifyer (network ID) | packet type (Object state, Game state or Connection state)
-    //   maybe adding a packet identifyer to the header could be useful to check if it has arrived to the other user that would send
-    //   an immediate response communicationg the packet that just arrived. May also help with redundant packets;
-    //   just check and compare the packet id, and you'll know if it has already been received or not.
-    // - Contents: 
-    public void SerializeCommands()
-    {
-        byte[] resp = new byte[2048];
-        var memStream = new MemoryStream();
-
-
-
-        using (BinaryWriter writer = new BinaryWriter(memStream)) //let's use a memory stream for the moment
-        {
-            writer.Write("#");
-            writer.Write();
         }
     }
 }
 
-public class ByteConstants
-{
-    public byte X_POSITION_MASK = 0b_0000_0001;
-    public byte Y_POSITION_MASK = 0b_0000_0010;
-    public byte Z_POSITION_MASK = 0b_0000_0100;
-}
-class ClientInfo
-{
-    //non modifyable
-    public string playerID;
-
-    //modifyable
-    public float x, y, z;
-}
