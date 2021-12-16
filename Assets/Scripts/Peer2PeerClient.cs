@@ -7,6 +7,8 @@ using System.Net.Sockets;
 
 using UnityEngine.UI;
 
+using UnityEngine.UIElements;
+
 public enum ClientState
 {
     LOGIN,
@@ -74,7 +76,7 @@ public class Peer2PeerClient : MonoBehaviour
     public GameObject GameMenu;
 
     public GameObject player; //The client's player
-    public GameObject opponentPlayer; //
+    public GameObject enemyPlayer; //
 
     IPEndPoint otherClientIP;
 
@@ -170,14 +172,14 @@ public class Peer2PeerClient : MonoBehaviour
 
                             if (playerNum == 1) //Send player to the left (-x)
                             {
-                                opponentPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x - screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
-                                opponentPlayer.transform.localRotation = newTrans.localRotation;
+                                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x - screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
+                                enemyPlayer.transform.localRotation = newTrans.localRotation;
 
                             }
                             else //Send Player to the right (+x)
                             {
-                                opponentPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x + screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
-                                opponentPlayer.transform.localRotation = newTrans.localRotation;
+                                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x + screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
+                                enemyPlayer.transform.localRotation = newTrans.localRotation;
                             }
 
                             break;
@@ -295,6 +297,12 @@ public class Peer2PeerClient : MonoBehaviour
 
     void StartGame()
     {
+        player = GameObject.Find("Player1");
+        //player.GetComponent<Material>().color = color;
+        //GameObject.Find("Player1Name").GetComponent<TextMeshPro>().text = username;
 
+        enemyPlayer = GameObject.Find("Player2");
+        //enemyPlayer.GetComponent<Material>().color = enemyColor;
+        //GameObject.Find("Player2Name").GetComponent<TextMeshPro>().text = enemyUsername;
     }
 }
