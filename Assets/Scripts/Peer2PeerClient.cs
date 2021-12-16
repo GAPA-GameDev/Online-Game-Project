@@ -24,17 +24,18 @@ enum MessageType
 }
 public class ByteConstants
 {
-    public byte X_POSITION_MASK = 0b_0000_0001;
-    public byte Y_POSITION_MASK = 0b_0000_0010;
-    public byte Z_POSITION_MASK = 0b_0000_0100;
+    public const byte X_POSITION_MASK = 0b_0000_0001;
+    public const byte Y_POSITION_MASK = 0b_0000_0010;
+    public const byte Z_POSITION_MASK = 0b_0000_0100;
 }
-class ClientInfo
+public class ObjectStateInfo
 {
     //non modifyable
-    public string playerID;
+    public string objectID;
 
     //modifyable
     public float x, y, z;
+    public byte changedParameters = 0b00000000;
 }
 class TransformMessage
 {
@@ -43,25 +44,44 @@ class TransformMessage
 
 class BinarySerializer
 {
-    //COMMAND STRUCTURE
+    ByteConstants constants;
+
+    //PACKET STRUCTURE
     // - Opening character: "#"
     // - Header: packet size | player identifyer (network ID) | packet type (Object state, Game state or Connection state)
     //   maybe adding a packet identifyer to the header could be useful to check if it has arrived to the other user that would send
     //   an immediate response communicationg the packet that just arrived. May also help with redundant packets;
     //   just check and compare the packet id, and you'll know if it has already been received or not.
-    // - Contents: 
-    public void SerializeCommands()
+    // - ObjectStateContents: 
+    public void SerializeObjectState(ObjectStateInfo ourInfo)
     {
+        MessageType type = MessageType.OBJECT_STATE;
+        int packetSize = 0;
+        int playerID = 0;
+        
         byte[] resp = new byte[2048];
         var memStream = new MemoryStream();
-
-
+        
+        //Calculate packet size
+        
 
         using (BinaryWriter writer = new BinaryWriter(memStream)) //let's use a memory stream for the moment
         {
             writer.Write("#");
             //writer.Write();
         }
+    }
+
+    // - GameStateContents: 
+    public void SerializeGameState(uint playerID)
+    {
+
+    }
+
+    // - ConnectionStateContents:
+    public void SerializeConnectionState(uint playerID)
+    {
+
     }
 }
 
@@ -91,8 +111,8 @@ public class Peer2PeerClient : MonoBehaviour
 
     IPEndPoint otherClientIP;
 
+    public ObjectStateInfo ourClientInfo;
     ByteConstants constants;
-    public byte changedParameters = 0b00000000;
 
     //Possibly have an array of messages to send (All actions the player wants the other one to know)
 
