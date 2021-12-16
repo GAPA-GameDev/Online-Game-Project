@@ -16,15 +16,6 @@ public enum ClientState
     PLAYING,
     NONE
 }
-
-enum PacketType
-{
-    OBJECT_STATE,
-    GAME_STATE,
-    CONNECTION_STATE,
-    UNKNOWN
-}
-
 enum MessageType
 {
     CONNECT,
@@ -33,73 +24,14 @@ enum MessageType
     DISCONNECT,
     NONE = 0
 }
-
 class Message
 {
     public MessageType type;
     public string message;
 }
-public class ByteConstants
-{
-    public const byte X_POSITION_MASK = 0b_0000_0001;
-    public const byte Y_POSITION_MASK = 0b_0000_0010;
-    public const byte Z_POSITION_MASK = 0b_0000_0100;
-}
-public class ObjectStateInfo
-{
-    //non modifyable
-    public string objectID;
-
-    //modifyable
-    public float x, y, z;
-    public byte changedParameters = 0b00000000;
-}
 class TransformMessage
 {
     public Transform newTransform;
-}
-
-class BinarySerializer
-{
-    ByteConstants constants;
-
-    //PACKET STRUCTURE
-    // - Opening character: "#"
-    // - Header: packet size | player identifyer (network ID) | packet type (Object state, Game state or Connection state)
-    //   maybe adding a packet identifyer to the header could be useful to check if it has arrived to the other user that would send
-    //   an immediate response communicationg the packet that just arrived. May also help with redundant packets;
-    //   just check and compare the packet id, and you'll know if it has already been received or not.
-    // - ObjectStateContents: 
-    public void SerializeObjectState(ObjectStateInfo ourInfo)
-    {
-        PacketType type = PacketType.OBJECT_STATE;
-        int packetSize = 0;
-        int playerID = 0;
-
-        byte[] resp = new byte[2048];
-        var memStream = new MemoryStream();
-
-        //Calculate packet size
-
-
-        using (BinaryWriter writer = new BinaryWriter(memStream)) //let's use a memory stream for the moment
-        {
-            writer.Write("#");
-            //writer.Write();
-        }
-    }
-
-    // - GameStateContents: 
-    public void SerializeGameState(uint playerID)
-    {
-
-    }
-
-    // - ConnectionStateContents:
-    public void SerializeConnectionState(uint playerID)
-    {
-
-    }
 }
 
 class ConnectMessage
@@ -372,4 +304,88 @@ public class Peer2PeerClient : MonoBehaviour
         //GameObject.Find("Player2Name").GetComponent<TextMeshPro>().text = enemyUsername;
     }
 }
+public class ByteConstants
+{
+    public const byte X_POSITION_MASK = 0b_0000_0001;
+    public const byte Y_POSITION_MASK = 0b_0000_0010;
+}
+enum PacketType
+{
+    OBJECT_STATE,
+    GAME_STATE,
+    CONNECTION_STATE,
+    UNKNOWN
+}
+public enum ActionType
+{
+    CREATE,
+    UPDATE,
+    DESTROY
+}
+public class ObjectStateInfo
+{
+    //non modifyable by replication
+    public string objectID;
+    public byte changedParameters = 0b00000000;
+    public ActionType action;
 
+    //modifyable by replication
+    public float x, y;
+}
+class BinarySerializer
+{
+    ByteConstants constants;
+
+    //PACKET STRUCTURE
+    // - Opening character: "#"
+    // - Header: packet size | player identifyer (network ID) | packet type (Object state, Game state or Connection state)
+    //   maybe adding a packet identifyer to the header could be useful to check if it has arrived to the other user that would send
+    //   an immediate response communicationg the packet that just arrived. May also help with redundant packets;
+    //   just check and compare the packet id, and you'll know if it has already been received or not.
+    // - ObjectStateContents: 
+    public void SerializeObjectState(ObjectStateInfo info, uint playerID)   //By the moment we only serialize one object at a time. 
+    {                                                                       //There should be a way to add more than one ObjectStateInfo.
+        PacketType type = PacketType.OBJECT_STATE;
+        int packetSize = 0;
+
+        byte[] resp = new byte[2048];
+        var memStream = new MemoryStream();
+
+        //Calculate packet size
+        packetSize = sizeof(char)  // Opening character
+                   + sizeof(int)   // Packet Size
+                   + sizeof(uint)  // PlayerID
+                   + sizeof(int)   // Type
+                   + sizeof(int)   // Action (Create, Update, Destroy)
+                   + sizeof(uint)  // ObjectID
+                   + sizeof(byte); // Changed Parameters (following the order inside ObjectStateInfo class)
+
+        packetSize += ((info.changedParameters & ByteConstants.X_POSITION_MASK) != 0) ? sizeof(float) : 0; // X
+        packetSize += ((info.changedParameters & ByteConstants.Y_POSITION_MASK) != 0) ? sizeof(float) : 0; // Y
+
+        using (BinaryWriter writer = new BinaryWriter(memStream)) //let's use a memory stream for the moment
+        {
+            writer.Write("#");
+            writer.Write(packetSize);
+            writer.Write(playerID);
+            writer.Write((int)type);
+            writer.Write(info.objectID);
+            writer.Write(info.changedParameters);
+            writer.Write((int)info.action);
+            if ((info.changedParameters & ByteConstants.X_POSITION_MASK) != 0) writer.Write(info.x);
+            if ((info.changedParameters & ByteConstants.Y_POSITION_MASK) != 0) writer.Write(info.y);
+        }
+    }
+
+    // - GameStateContents: 
+    public void SerializeGameState(uint playerID)
+    {
+
+    }
+
+    // - ConnectionStateContents:
+    public void SerializeConnectionState(uint playerID)
+    {
+
+    }
+}
