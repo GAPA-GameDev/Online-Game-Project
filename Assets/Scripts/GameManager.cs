@@ -25,6 +25,9 @@ public class GameManager : MonoBehaviour
     public GameObject player; //The client's player
     public GameObject enemyPlayer; //
 
+    public GameObject pauseMenu;
+
+    bool paused = false; //If pause menu is open, just stop player movement/input
 
     // Start is called before the first frame update
     void Start()
@@ -50,20 +53,28 @@ public class GameManager : MonoBehaviour
 
 
                 break;
+
             case GameState.SPAWNING:
 
 
                 break;
+
             case GameState.PLAYING:
 
 
                 break;
+
             case GameState.END_SCREEN:
 
 
                 break;
+
         }
 
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            
+        }
 
     }
 

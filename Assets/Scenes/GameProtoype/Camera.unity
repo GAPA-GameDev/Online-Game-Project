@@ -493,9 +493,6 @@ MonoBehaviour:
   portInput: {fileID: 1946940231}
   opponentPortInput: {fileID: 1737195092}
   loginMenu: {fileID: 1111494061}
-  GameMenu: {fileID: 83043374}
-  player: {fileID: 2836004473748832712}
-  enemyPlayer: {fileID: 8222056662382263895}
 --- !u!4 &589729798
 Transform:
   m_ObjectHideFlags: 0
@@ -974,6 +971,46 @@ PrefabInstance:
     - target: {fileID: 242387056114470513, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
       propertyPath: m_Name
       value: Menu
+      objectReference: {fileID: 0}
+    - target: {fileID: 3832895379970600035, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 283
+      objectReference: {fileID: 0}
+    - target: {fileID: 3832895379970600035, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 165
+      objectReference: {fileID: 0}
+    - target: {fileID: 3832895379970600035, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.2339
+      objectReference: {fileID: 0}
+    - target: {fileID: 3832895379970600035, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.2339
+      objectReference: {fileID: 0}
+    - target: {fileID: 3832895379970600035, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.2339
+      objectReference: {fileID: 0}
+    - target: {fileID: 6000473796930364832, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6000473796930364832, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -32
+      objectReference: {fileID: 0}
+    - target: {fileID: 6000473796930364832, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.44593
+      objectReference: {fileID: 0}
+    - target: {fileID: 6000473796930364832, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.44593
+      objectReference: {fileID: 0}
+    - target: {fileID: 6000473796930364832, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.44593
       objectReference: {fileID: 0}
     - target: {fileID: 6055123343773358314, guid: 959c02f1f71778b4288804e6f6e9f274, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -1496,6 +1533,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameManager
       objectReference: {fileID: 0}
+    - target: {fileID: 5482534914861647898, guid: 18bb30561f930984592d4f3bf065fbaf, type: 3}
+      propertyPath: client
+      value: 
+      objectReference: {fileID: 589729797}
+    - target: {fileID: 5482534914861647898, guid: 18bb30561f930984592d4f3bf065fbaf, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 2836004473748832712}
+    - target: {fileID: 5482534914861647898, guid: 18bb30561f930984592d4f3bf065fbaf, type: 3}
+      propertyPath: enemyPlayer
+      value: 
+      objectReference: {fileID: 8222056662382263895}
+    - target: {fileID: 5482534914861647898, guid: 18bb30561f930984592d4f3bf065fbaf, type: 3}
+      propertyPath: pauseMenu
+      value: 
+      objectReference: {fileID: 83043374}
     - target: {fileID: 5482534914861647899, guid: 18bb30561f930984592d4f3bf065fbaf, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.504957
