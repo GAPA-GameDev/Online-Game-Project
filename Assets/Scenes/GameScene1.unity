@@ -513,7 +513,7 @@ MonoBehaviour:
   loginMenu: {fileID: 1375447168}
   GameMenu: {fileID: 6055123345341051736}
   player: {fileID: 659425777}
-  enemyPlayer: {fileID: 0}
+  enemyPlayer: {fileID: 1487932579}
 --- !u!4 &433190468
 Transform:
   m_ObjectHideFlags: 0

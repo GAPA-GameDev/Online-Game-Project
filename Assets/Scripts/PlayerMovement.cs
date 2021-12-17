@@ -25,14 +25,14 @@ public class PlayerMovement : MonoBehaviour
                 {
                     transform.localPosition += new Vector3(Input.GetAxis("Horizontal") * speed * Time.deltaTime, 0, 0);
                     //Activate the 'X changed' flag
-                    client.ourClientInfo.changedParameters |= ByteConstants.X_POSITION_MASK;                        
+                    //client.ourClientInfo.changedParameters |= ByteConstants.X_POSITION_MASK;                        
                 }
 
                 if (Input.GetAxis("Vertical") != 0)
                 {
                     transform.localPosition += new Vector3(0, 0, Input.GetAxis("Vertical") * speed * Time.deltaTime);
                     //Activate the 'Y changed' flag
-                    client.ourClientInfo.changedParameters |= ByteConstants.Y_POSITION_MASK;
+                    //client.ourClientInfo.changedParameters |= ByteConstants.Y_POSITION_MASK;
                 }
 
                 break;

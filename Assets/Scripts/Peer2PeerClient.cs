@@ -49,6 +49,7 @@ class DisconnectMessage //Idk if this should do anything
 
 public class Peer2PeerClient : MonoBehaviour
 {
+    public GameManager gameManager;
 
     public int playerNum = 1; //either 1 or 2 (This helps when having both scenes at the same screen and deciding the starting position)
     public float screenOffset = 0;
@@ -71,10 +72,9 @@ public class Peer2PeerClient : MonoBehaviour
     public InputField opponentPortInput; //Input field for the other client's port
 
     public GameObject loginMenu; //Object holding all the LoginMenu to be deactivated
-    public GameObject GameMenu;
+    //public GameObject GameMenu;
 
-    public GameObject player; //The client's player
-    public GameObject enemyPlayer; //
+    
 
     IPEndPoint otherClientIP;
 
@@ -87,7 +87,7 @@ public class Peer2PeerClient : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GameMenu.SetActive(false);
+        //GameMenu.SetActive(false);
         loginMenu.SetActive(true);
     }
 
@@ -139,8 +139,6 @@ public class Peer2PeerClient : MonoBehaviour
 
                             StartGame();
 
-                            state = ClientState.PLAYING;
-
                             break;
                     }
                 }
@@ -173,14 +171,13 @@ public class Peer2PeerClient : MonoBehaviour
 
                             if (playerNum == 1) //Send player to the left (-x)
                             {
-                                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x - screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
-                                enemyPlayer.transform.localRotation = newTrans.localRotation;
+                                gameManager.MovePlayer(2,newTrans); //Move Player 2
 
                             }
                             else //Send Player to the right (+x)
                             {
-                                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x + screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
-                                enemyPlayer.transform.localRotation = newTrans.localRotation;
+                                gameManager.MovePlayer(1, newTrans);
+                                
                             }
 
                             break;
@@ -231,7 +228,9 @@ public class Peer2PeerClient : MonoBehaviour
             case MessageType.PLAYER_MOVE:
 
                 TransformMessage newTransform = new TransformMessage();
-                newTransform.newTransform = player.transform; //Player's transform
+                newTransform.newTransform = gameManager.player.transform; //Player's transform
+
+                
 
                 ret.type = MessageType.PLAYER_MOVE;
                 ret.message = JsonUtility.ToJson(newTransform); //Serialized with Json
@@ -259,7 +258,7 @@ public class Peer2PeerClient : MonoBehaviour
             otherClientIP = new IPEndPoint(IPAddress.Any, otherPort); //Here we save the other client's IP to send messages
 
             loginMenu.SetActive(false);
-            GameMenu.SetActive(true);
+            //GameMenu.SetActive(true);
 
             state = ClientState.WAITING;
 
@@ -287,21 +286,42 @@ public class Peer2PeerClient : MonoBehaviour
     {
         state = ClientState.LOGIN;
 
+        gameManager.OnDisconnect();
+
         loginMenu.SetActive(true);
-        GameMenu.SetActive(false);
+        //GameMenu.SetActive(false);
 
         socket.Close();
     }
 
     void StartGame()
     {
-        player = GameObject.Find("Player1");
-        //player.GetComponent<Material>().color = color;
-        //GameObject.Find("Player1Name").GetComponent<TextMeshPro>().text = username;
 
-        enemyPlayer = GameObject.Find("Player2");
-        //enemyPlayer.GetComponent<Material>().color = enemyColor;
-        //GameObject.Find("Player2Name").GetComponent<TextMeshPro>().text = enemyUsername;
+        gameManager.StartGame();
+
+        state = ClientState.PLAYING; 
+
+        if (playerNum == 1)
+        {
+            //player = GameObject.Find("Player1");
+            //player.GetComponent<Material>().color = color;
+            //GameObject.Find("Player1Name").GetComponent<TextMeshPro>().text = username;
+
+            //enemyPlayer = GameObject.Find("Player2");
+            //enemyPlayer.GetComponent<Material>().color = enemyColor;
+            //GameObject.Find("Player2Name").GetComponent<TextMeshPro>().text = enemyUsername;
+        }
+        else
+        {
+            //player = GameObject.Find("Player2");
+            //player.GetComponent<Material>().color = color;
+            //GameObject.Find("Player1Name").GetComponent<TextMeshPro>().text = username;
+
+            //enemyPlayer = GameObject.Find("Player1");
+            //enemyPlayer.GetComponent<Material>().color = enemyColor;
+            //GameObject.Find("Player2Name").GetComponent<TextMeshPro>().text = enemyUsername;
+        }
+
     }
 }
 public class ByteConstants
