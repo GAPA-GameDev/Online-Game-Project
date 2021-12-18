@@ -9,6 +9,7 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
     public float speed = 6f;
     public Animator animator;
 
+    public Player2 player2;
     public GameManager gameManager;
     public Peer2PeerClient client;
 
@@ -29,6 +30,11 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
     //gravity vars
     public float gravity = -9.81f;
 
+    public float health = 100.0f;
+    public float maxHealth = 100.0f;
+
+    public float bulletDamage = 10.0f;
+
     [SerializeField]
     Vector3 velocity;
 
@@ -44,11 +50,13 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
     void Start()
     {
         activeWeapon = Weapon.Single;
+
+        health = maxHealth;
     }
 
     void Update()
     {
-        if (!gameManager.paused)
+        if (!gameManager.paused && gameManager.allowInput)
         {
 
 
@@ -127,6 +135,15 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
         }
     }
 
+    public void ReceiveDamage()
+    {
+        if(gameManager.allowInput)
+        {
+            health -= 10.0f; //Why tf does it not let me use the variable bulletDamage ??????
+        }
+        
+    }
+
     IEnumerator Shoot()
     {
         switch (activeWeapon)
@@ -134,8 +151,17 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
             case Weapon.Single:
                 {
                     GameObject bullet = Instantiate(bulletPrefab, fireOrigin.position, fireOrigin.rotation);
+
+                    Bullet bulletScript = bullet.GetComponent<Bullet>();
+                    bulletScript.player = this;
+                    bulletScript.player2 = player2;
+
                     Rigidbody rb = bullet.GetComponent<Rigidbody>();
-                    rb.AddForce(fireOrigin.up * bulletForce, ForceMode.Impulse);
+                    Vector3 force = fireOrigin.up * bulletForce;
+                    rb.AddForce(force, ForceMode.Impulse);
+
+                    client.OnShoot(bullet,force);
+
                     break;
                 }
 
@@ -144,8 +170,16 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
                     for (int i = 0; i < 3; i++)
                     {
                         GameObject bullet = Instantiate(bulletPrefab, fireOrigin.position, fireOrigin.rotation);
+                        Bullet bulletScript = bullet.GetComponent<Bullet>();
+                        bulletScript.player = this;
+                        bulletScript.player2 = player2;
+
                         Rigidbody rb = bullet.GetComponent<Rigidbody>();
-                        rb.AddForce(fireOrigin.up * bulletForce, ForceMode.Impulse);
+                        Vector3 force = fireOrigin.up * bulletForce;
+                        rb.AddForce(force, ForceMode.Impulse);
+
+                        client.OnShoot(bullet, force);
+
                         yield return new WaitForSeconds(0.1f);
                     }
                     break;

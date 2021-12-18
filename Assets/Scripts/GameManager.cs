@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-enum GameState
+public enum GameState
 {
     NONE =0,
     START_GAME,
-    SPAWNING,
     PLAYING,
     NEXT_ROUND,
     END_SCREEN
@@ -18,73 +17,214 @@ public class GameManager : MonoBehaviour
     int round = 0;
     int maxRounds = 3;
 
+    int player1Wins = 0; //Amount of wins Player1 has
+    int player2Wins = 0; //Amount of wins Player2 has
+
+    float endRoundTimer = 0.0f;
+    float nextRoundTimer = 0.0f;
+    float endGameTimer = 0.0f;
+
+    public GameObject EndRoundMenu;
+    public GameObject EndGameMenu;
+
+    bool roundEnded = false;
+    bool roundSetUp = false; //If the round has been set up yet
+
     public Peer2PeerClient client;
 
-    GameState gameState = GameState.NONE;
+    public GameState gameState = GameState.NONE;
 
     public GameObject player; //The client's player
     public GameObject enemyPlayer; //
 
+    PlaceHolderMOVEMENT player1Script;
+    Player2 player2Script;
+
+
     public GameObject pauseMenu;
 
     public bool paused = false; //If pause menu is open, just stop player movement/input
+    public bool allowInput = false; //Allows player to move their character
+
+    public Transform spawnPointPlayer1;
+    public Transform spawnPointPlayer2;
 
     // Start is called before the first frame update
     void Start()
     {
         pauseMenu.SetActive(false);
+        EndRoundMenu.SetActive(false);
+        EndGameMenu.SetActive(false);
+
+        player.SetActive(false);
+        enemyPlayer.SetActive(false);
+
+        player1Script = player.GetComponent<PlaceHolderMOVEMENT>();
+        player2Script = enemyPlayer.GetComponent<Player2>();
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        UpdatePause();
-
         switch (gameState)
         {
             case GameState.START_GAME:
 
-                //Spawn players and scene
+                allowInput = false;
 
+                //Set Up new Game
+                round = 0;
+
+                gameState = GameState.NEXT_ROUND;
 
                 break;
 
             case GameState.NEXT_ROUND:
 
+                allowInput = false;
 
-                break;
+                if(!roundSetUp)
+                {
+                    SetUpNewRound();
+                    roundSetUp = true;
+                }
 
-            case GameState.SPAWNING:
-
+                if(nextRoundTimer >= 2)
+                {
+                    gameState = GameState.PLAYING;
+                    nextRoundTimer = 0.0f;
+                    roundSetUp = false;
+                }
+                else
+                {
+                    nextRoundTimer += Time.deltaTime;
+                }
 
                 break;
 
             case GameState.PLAYING:
 
+                allowInput = true;
+                UpdatePause();
+
+                if(player1Script.health <= 0) //End game, player 2 wins!!
+                {
+                    roundEnded = true;
+                    player2Wins++;
+                }
                 
+                if(player2Script.health <=0) //End game, player 1 wins!!
+                {
+                    roundEnded = true;
+                    player1Wins++;
+                }
+
+                if (roundEnded)
+                {
+                    allowInput = false;
+
+                    EndRoundMenu.SetActive(true);
+                    //Set text to say who won
+
+
+                    //Maybe start a timer to display the round winner
+                    if (endRoundTimer >= 3)
+                    {
+                        endRoundTimer = 0.0f;
+
+                        roundEnded = false;
+
+                        EndRoundMenu.SetActive(false);
+
+                        if (round < maxRounds) //If there are more rounds just go to the next one
+                        {
+                            gameState = GameState.NEXT_ROUND;
+                        }
+                        else //If ther rounds are over then the game is over!!
+                        {
+                            gameState = GameState.END_SCREEN;
+
+                            EndGameMenu.SetActive(true);
+                        }
+                    }
+                    else
+                    {
+                        endRoundTimer += Time.deltaTime;
+                    }
+                }
 
                 break;
 
             case GameState.END_SCREEN:
 
+                allowInput = false;
+
+                //Count wins and display who won the game! (Start a timer to show the winner)
+
+                if(player1Wins > player2Wins)
+                {
+                    //Player1 won!
+                }
+                else if(player2Wins == player1Wins)
+                {
+                    //Draw I guess
+                }
+                else
+                {
+                    //Player2Won!!
+                }
+                
+                if(endGameTimer >= 3)
+                {
+                    gameState = GameState.START_GAME;
+                    EndGameMenu.SetActive(false);
+                }
+                else
+                {
+                    endGameTimer += Time.deltaTime;
+                }
 
                 break;
 
-        }
-
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            
         }
 
     }
 
     public void StartGame()
     {
-        round = 0;
+        gameState = GameState.NEXT_ROUND; //Start first round spawning everything anew
+    }
 
-        gameState = GameState.START_GAME; //Start first round spawning everything anew
+    void SetUpNewRound()
+    {
+        if(round < 3) //If less than the max rounds just spawn them with max health
+        {
+            if(round == 0)
+            {
+                //Spawn Level In (Activate object or instantiate prefab or whatever)
+            }
+
+            //Spawn and Move players to starting positions
+
+            player.SetActive(true);
+            enemyPlayer.SetActive(true);
+
+            if (client.playerNum == 2) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
+            {
+                player.transform.localPosition = new Vector3(spawnPointPlayer1.localPosition.x - client.screenOffset, spawnPointPlayer1.localPosition.y, spawnPointPlayer1.localPosition.z);
+                enemyPlayer.transform.localPosition = new Vector3(spawnPointPlayer2.localPosition.x - client.screenOffset, spawnPointPlayer2.localPosition.y, spawnPointPlayer2.localPosition.z);
+            }
+            else
+            {
+                player.transform.localPosition = new Vector3(spawnPointPlayer1.localPosition.x , spawnPointPlayer1.localPosition.y, spawnPointPlayer1.localPosition.z);
+                enemyPlayer.transform.localPosition = new Vector3(spawnPointPlayer2.localPosition.x , spawnPointPlayer2.localPosition.y, spawnPointPlayer2.localPosition.z);
+            }
+                
+
+            player1Script.health = player1Script.maxHealth;
+            player2Script.health = player2Script.maxHealth;
+
+        }
     }
 
     public void OnDisconnect()
@@ -96,18 +236,19 @@ public class GameManager : MonoBehaviour
     //PlayerNum refers to the player which will be acted upon 
     public void MovePlayer(int playerNum,Transform newTrans) //What to do when receiving movement from client
     {
-        if (playerNum == 2) //Send player to the left (-x)
+        if(gameState == GameState.PLAYING)
         {
-            enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x - client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
-            enemyPlayer.transform.localRotation = newTrans.localRotation;
+            if (playerNum == 2) //Send player to the left (-x)
+            {
+                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x + client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
+                enemyPlayer.transform.localRotation = newTrans.localRotation;
+            }
+            else
+            {
+                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x - client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
+                enemyPlayer.transform.localRotation = newTrans.localRotation;
+            }
         }
-        else
-        {
-            enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x + client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
-            enemyPlayer.transform.localRotation = newTrans.localRotation;
-        }
-
-        Debug.Log("MovedPlayer2");
         
     }
 

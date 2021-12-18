@@ -1460,9 +1460,10 @@ GameObject:
   - component: {fileID: 6972551618819306766}
   - component: {fileID: 6972551618118404747}
   - component: {fileID: 944401409669198050}
+  - component: {fileID: 8759033699662454202}
   m_Layer: 0
   m_Name: Player2
-  m_TagString: Player
+  m_TagString: Player2
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1474,7 +1475,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6972551618819205422}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -33.6, y: 1.16, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
@@ -1528,6 +1529,19 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.95, z: 0}
+--- !u!114 &8759033699662454202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6972551618819205422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57cfa5a40afb64c4d8ec819c067fc23e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 2609983681669671269, guid: 3b54d968e5f11024e8ea74f51ba6db39, type: 3}
 --- !u!1 &6972551618819205424
 GameObject:
   m_ObjectHideFlags: 0

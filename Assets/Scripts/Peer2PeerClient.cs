@@ -21,6 +21,7 @@ enum MessageType
     CONNECT,
     PLAYER_MOVE,
     PLAYER_SHOOT,
+    PLAYER_RECEIVE_SHOT, //When bullet hits player
     DISCONNECT,
     NONE = 0
 }
@@ -34,7 +35,14 @@ class TransformMessage
     public Transform newTransform;
 }
 
-class ShotMessage
+public class ShotMessage
+{
+    public Vector3 initialPos;
+    public Quaternion initialRotation;
+    public Vector3 initialForce;
+}
+
+class ReceiveShotMessage
 {
 
 }
@@ -153,9 +161,11 @@ public class Peer2PeerClient : MonoBehaviour
 
                 //Right now we constantly send the TransformMessage, later on we should make it so it waits for the other client to respond after getting the message to send it again?
                 
-                SendMessage(MessageType.PLAYER_MOVE);
-
-                //Debug.Log(string.Concat("Client ", clientName, " sent: ", str));
+                if(gameManager.gameState == GameState.PLAYING)
+                {
+                    SendMessage(MessageType.PLAYER_MOVE); //Wait for other client to respond with an ok
+                }
+                
 
                 while (socket.Client.Poll(0, SelectMode.SelectRead))
                 {
@@ -175,7 +185,6 @@ public class Peer2PeerClient : MonoBehaviour
                             if (playerNum == 1) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
                             {
                                 gameManager.MovePlayer(2,newTrans); 
-
                             }
                             else //Send Player to the right (+x)
                             {
@@ -185,15 +194,36 @@ public class Peer2PeerClient : MonoBehaviour
 
                             break;
 
+                        case MessageType.PLAYER_SHOOT:
+
+                            ShotMessage shotMessage = JsonUtility.FromJson<ShotMessage>(receivedMessage2.message);
+
+                            if (playerNum == 2) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
+                            {
+                                shotMessage.initialPos.x -= screenOffset;
+                            }
+                            else
+                            {
+                                shotMessage.initialPos.x += screenOffset;
+                            }
+
+                            gameManager.enemyPlayer.GetComponent<Player2>().ShootBullet(shotMessage);
+
+                            break;
+
+                        case MessageType.PLAYER_RECEIVE_SHOT:
+
+                            Debug.Log("Player received Damage (client)");
+                            gameManager.player.GetComponent<PlaceHolderMOVEMENT>().ReceiveDamage();
+
+                            break;
+
                         case MessageType.DISCONNECT:
 
                             Disconnect();
 
                             break;
                     }
-
-
-
                 }
 
                 break;
@@ -233,15 +263,17 @@ public class Peer2PeerClient : MonoBehaviour
                 TransformMessage newTransform = new TransformMessage();
                 newTransform.newTransform = gameManager.player.transform; //Player's transform
 
-                
-
                 ret.type = MessageType.PLAYER_MOVE;
                 ret.message = JsonUtility.ToJson(newTransform); //Serialized with Json
 
                 break;
 
-            case MessageType.PLAYER_SHOOT:
+            case MessageType.PLAYER_RECEIVE_SHOT:
 
+                ReceiveShotMessage receivedShotMessage = new ReceiveShotMessage();
+
+                ret.type = MessageType.PLAYER_RECEIVE_SHOT;
+                ret.message = JsonUtility.ToJson(receivedShotMessage); //Serialized with Json
 
                 break;
         }
@@ -288,6 +320,32 @@ public class Peer2PeerClient : MonoBehaviour
         SendMessage(MessageType.DISCONNECT);
 
         Disconnect();
+    }
+
+    public void OnShoot(GameObject bullet,Vector3 force) //What to do when local player shoots (Send shot message to other player)
+    {
+        //Maybe receive orientation, force and such
+        Message ret = new Message();
+
+        ShotMessage shotMessage = new ShotMessage();
+
+        shotMessage.initialPos = bullet.transform.position;
+        shotMessage.initialRotation = bullet.transform.rotation;
+        shotMessage.initialForce = force;
+
+        ret.type = MessageType.PLAYER_SHOOT;
+        ret.message = JsonUtility.ToJson(shotMessage); //Serialized with Json
+
+        string messageString = JsonUtility.ToJson(ret);
+
+        byte[] buffer = Encoding.ASCII.GetBytes(messageString); //Encoded with ASCII
+        socket.Send(buffer, buffer.Length, host, otherPort);
+    }
+
+    public void OnHit() //When a bullet hits (Send message to other player that it has been hit)
+    {
+        Debug.Log("Sending message to other player been hit");
+        SendMessage(MessageType.PLAYER_RECEIVE_SHOT);
     }
 
     public void Disconnect() //What to do when disconnecting
