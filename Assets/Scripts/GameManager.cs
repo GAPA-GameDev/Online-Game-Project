@@ -27,20 +27,21 @@ public class GameManager : MonoBehaviour
 
     public GameObject pauseMenu;
 
-    bool paused = false; //If pause menu is open, just stop player movement/input
+    public bool paused = false; //If pause menu is open, just stop player movement/input
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        pauseMenu.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
 
+        UpdatePause();
 
-        switch(gameState)
+        switch (gameState)
         {
             case GameState.START_GAME:
 
@@ -61,6 +62,7 @@ public class GameManager : MonoBehaviour
 
             case GameState.PLAYING:
 
+                
 
                 break;
 
@@ -94,7 +96,7 @@ public class GameManager : MonoBehaviour
     //PlayerNum refers to the player which will be acted upon 
     public void MovePlayer(int playerNum,Transform newTrans) //What to do when receiving movement from client
     {
-        if (playerNum == 1) //Send player to the left (-x)
+        if (playerNum == 2) //Send player to the left (-x)
         {
             enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x - client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
             enemyPlayer.transform.localRotation = newTrans.localRotation;
@@ -103,6 +105,27 @@ public class GameManager : MonoBehaviour
         {
             enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x + client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
             enemyPlayer.transform.localRotation = newTrans.localRotation;
+        }
+
+        Debug.Log("MovedPlayer2");
+        
+    }
+
+    void UpdatePause()
+    {
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (paused)
+            {
+                paused = false;
+                pauseMenu.SetActive(false);
+            }
+            else
+            {
+                paused = true;
+                pauseMenu.SetActive(true);
+            }
         }
         
     }

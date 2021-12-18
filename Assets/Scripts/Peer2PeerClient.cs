@@ -34,6 +34,11 @@ class TransformMessage
     public Transform newTransform;
 }
 
+class ShotMessage
+{
+
+}
+
 class ConnectMessage
 {
     public string username;
@@ -73,8 +78,6 @@ public class Peer2PeerClient : MonoBehaviour
 
     public GameObject loginMenu; //Object holding all the LoginMenu to be deactivated
     //public GameObject GameMenu;
-
-    
 
     IPEndPoint otherClientIP;
 
@@ -169,9 +172,9 @@ public class Peer2PeerClient : MonoBehaviour
                             TransformMessage transformMessage = JsonUtility.FromJson<TransformMessage>(receivedMessage2.message);
                             Transform newTrans = transformMessage.newTransform;
 
-                            if (playerNum == 1) //Send player to the left (-x)
+                            if (playerNum == 1) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
                             {
-                                gameManager.MovePlayer(2,newTrans); //Move Player 2
+                                gameManager.MovePlayer(2,newTrans); 
 
                             }
                             else //Send Player to the right (+x)
@@ -234,6 +237,11 @@ public class Peer2PeerClient : MonoBehaviour
 
                 ret.type = MessageType.PLAYER_MOVE;
                 ret.message = JsonUtility.ToJson(newTransform); //Serialized with Json
+
+                break;
+
+            case MessageType.PLAYER_SHOOT:
+
 
                 break;
         }

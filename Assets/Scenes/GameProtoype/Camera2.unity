@@ -640,6 +640,7 @@ MonoBehaviour:
   player: {fileID: 1600377215}
   enemyPlayer: {fileID: 1096126654}
   pauseMenu: {fileID: 83043374}
+  paused: 0
 --- !u!4 &1000742179
 Transform:
   m_ObjectHideFlags: 0
@@ -837,7 +838,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a45a737e372ed0049b021589ae896898, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameManager: {fileID: 0}
+  gameManager: {fileID: 1000742178}
   playerNum: 2
   screenOffset: 30
   state: 0
@@ -1108,6 +1109,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6408087335403711547, guid: 39dedefe0c992424d8a53c75e2016466, type: 3}
+      propertyPath: gameManager
+      value: 
+      objectReference: {fileID: 1000742178}
+    - target: {fileID: 6408087335403711547, guid: 39dedefe0c992424d8a53c75e2016466, type: 3}
+      propertyPath: client
+      value: 
+      objectReference: {fileID: 1189847059}
     - target: {fileID: 9202431227216404351, guid: 39dedefe0c992424d8a53c75e2016466, type: 3}
       propertyPath: m_LocalPosition.x
       value: 33.7
