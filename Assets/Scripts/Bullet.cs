@@ -15,7 +15,7 @@ public class Bullet : MonoBehaviour
 
         if(other.gameObject.tag == "Player") //When enemy bullet hits player (Not online)
         {
-            player.ReceiveDamage();
+            //player.ReceiveDamage();
         }
 
         if (other.gameObject.tag == "Player2") //If bullet hits enemy player (This should only happen when allied bullet hits other player)

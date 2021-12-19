@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public enum GameState
 {
@@ -14,6 +16,8 @@ public enum GameState
 public class GameManager : MonoBehaviour
 {
 
+
+
     int round = 0;
     int maxRounds = 3;
 
@@ -26,6 +30,8 @@ public class GameManager : MonoBehaviour
 
     public GameObject EndRoundMenu;
     public GameObject EndGameMenu;
+    public Text endRoundText;
+    public Text endGameText;
 
     bool roundEnded = false;
     bool roundSetUp = false; //If the round has been set up yet
@@ -36,6 +42,9 @@ public class GameManager : MonoBehaviour
 
     public GameObject player; //The client's player
     public GameObject enemyPlayer; //
+
+    public TextMeshPro player1Usernam;
+    public TextMeshPro player2Username;
 
     PlaceHolderMOVEMENT player1Script;
     Player2 player2Script;
@@ -75,6 +84,9 @@ public class GameManager : MonoBehaviour
                 //Set Up new Game
                 round = 0;
 
+                player1Usernam.text = client.username;
+                player2Username.text = client.enemyUsername;
+
                 gameState = GameState.NEXT_ROUND;
 
                 break;
@@ -91,6 +103,7 @@ public class GameManager : MonoBehaviour
 
                 if(nextRoundTimer >= 2)
                 {
+                    round++;
                     gameState = GameState.PLAYING;
                     nextRoundTimer = 0.0f;
                     roundSetUp = false;
@@ -111,12 +124,14 @@ public class GameManager : MonoBehaviour
                 {
                     roundEnded = true;
                     player2Wins++;
+                    endRoundText.text = string.Concat("You Lost round ", round.ToString());
                 }
                 
                 if(player2Script.health <=0) //End game, player 1 wins!!
                 {
                     roundEnded = true;
                     player1Wins++;
+                    endRoundText.text = string.Concat("You Won round ", round.ToString());
                 }
 
                 if (roundEnded)
@@ -138,7 +153,19 @@ public class GameManager : MonoBehaviour
 
                         if (round < maxRounds) //If there are more rounds just go to the next one
                         {
-                            gameState = GameState.NEXT_ROUND;
+                            if(player1Wins > maxRounds/2 || player2Wins > maxRounds / 2)
+                            {
+                                gameState = GameState.END_SCREEN;
+
+                                EndGameMenu.SetActive(true);
+                            }
+                            else
+                            {
+                                gameState = GameState.NEXT_ROUND;
+                            }
+
+
+                           
                         }
                         else //If ther rounds are over then the game is over!!
                         {
@@ -164,6 +191,7 @@ public class GameManager : MonoBehaviour
                 if(player1Wins > player2Wins)
                 {
                     //Player1 won!
+                    endGameText.text = "You Won the Game!";
                 }
                 else if(player2Wins == player1Wins)
                 {
@@ -172,12 +200,14 @@ public class GameManager : MonoBehaviour
                 else
                 {
                     //Player2Won!!
+                    endGameText.text = "You lost the Game!";
                 }
                 
                 if(endGameTimer >= 3)
                 {
                     gameState = GameState.START_GAME;
                     EndGameMenu.SetActive(false);
+                    endGameTimer = 0.0f;
                 }
                 else
                 {
@@ -192,7 +222,7 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        gameState = GameState.NEXT_ROUND; //Start first round spawning everything anew
+        gameState = GameState.START_GAME; //Start first round spawning everything anew
     }
 
     void SetUpNewRound()
@@ -209,15 +239,15 @@ public class GameManager : MonoBehaviour
             player.SetActive(true);
             enemyPlayer.SetActive(true);
 
-            if (client.playerNum == 2) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
+            if (client.playerNum == 1) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
             {
                 player.transform.localPosition = new Vector3(spawnPointPlayer1.localPosition.x - client.screenOffset, spawnPointPlayer1.localPosition.y, spawnPointPlayer1.localPosition.z);
                 enemyPlayer.transform.localPosition = new Vector3(spawnPointPlayer2.localPosition.x - client.screenOffset, spawnPointPlayer2.localPosition.y, spawnPointPlayer2.localPosition.z);
             }
             else
             {
-                player.transform.localPosition = new Vector3(spawnPointPlayer1.localPosition.x , spawnPointPlayer1.localPosition.y, spawnPointPlayer1.localPosition.z);
-                enemyPlayer.transform.localPosition = new Vector3(spawnPointPlayer2.localPosition.x , spawnPointPlayer2.localPosition.y, spawnPointPlayer2.localPosition.z);
+                player.transform.localPosition = new Vector3(spawnPointPlayer2.localPosition.x , spawnPointPlayer2.localPosition.y, spawnPointPlayer2.localPosition.z);
+                enemyPlayer.transform.localPosition = new Vector3(spawnPointPlayer1.localPosition.x , spawnPointPlayer1.localPosition.y, spawnPointPlayer1.localPosition.z);
             }
                 
 
@@ -230,23 +260,25 @@ public class GameManager : MonoBehaviour
     public void OnDisconnect()
     {
         //Maybe show player that the other one disconnected?
+        pauseMenu.SetActive(false);
+
 
     }
 
     //PlayerNum refers to the player which will be acted upon 
-    public void MovePlayer(int playerNum,Transform newTrans) //What to do when receiving movement from client
+    public void MovePlayer(int playerNum,TransformMessage newTrans) //What to do when receiving movement from client
     {
         if(gameState == GameState.PLAYING)
         {
             if (playerNum == 2) //Send player to the left (-x)
             {
-                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x + client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
-                enemyPlayer.transform.localRotation = newTrans.localRotation;
+                enemyPlayer.transform.localPosition = newTrans.localPos; //new Vector3(newTrans.localPosition.x + client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
+                enemyPlayer.transform.localRotation = newTrans.rotation;
             }
             else
             {
-                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPosition.x - client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
-                enemyPlayer.transform.localRotation = newTrans.localRotation;
+                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPos.x - client.screenOffset, newTrans.localPos.y, newTrans.localPos.z);
+                enemyPlayer.transform.localRotation = newTrans.rotation;
             }
         }
         

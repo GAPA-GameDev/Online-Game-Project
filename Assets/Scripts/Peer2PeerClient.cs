@@ -30,9 +30,10 @@ class Message
     public MessageType type;
     public string message;
 }
-class TransformMessage
+public class TransformMessage
 {
-    public Transform newTransform;
+    public Vector3 localPos;
+    public Quaternion rotation;
 }
 
 public class ShotMessage
@@ -71,10 +72,10 @@ public class Peer2PeerClient : MonoBehaviour
 
     private UdpClient socket; //This clien'ts Udp socket
 
-    string username = "None";
+    public string username = "None";
     Color color = Color.black;
 
-    string enemyUsername = "None";
+    public string enemyUsername = "None";
     Color enemyColor = Color.black;
 
     public int port; //This client's port (Local)
@@ -83,6 +84,7 @@ public class Peer2PeerClient : MonoBehaviour
 
     public InputField portInput; //Input field for this client's port
     public InputField opponentPortInput; //Input field for the other client's port
+    public InputField usernameInput;
 
     public GameObject loginMenu; //Object holding all the LoginMenu to be deactivated
     //public GameObject GameMenu;
@@ -180,15 +182,15 @@ public class Peer2PeerClient : MonoBehaviour
                         case MessageType.PLAYER_MOVE:
 
                             TransformMessage transformMessage = JsonUtility.FromJson<TransformMessage>(receivedMessage2.message);
-                            Transform newTrans = transformMessage.newTransform;
+                            
 
                             if (playerNum == 1) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
                             {
-                                gameManager.MovePlayer(2,newTrans); 
+                                gameManager.MovePlayer(2, transformMessage); 
                             }
                             else //Send Player to the right (+x)
                             {
-                                gameManager.MovePlayer(1, newTrans);
+                                gameManager.MovePlayer(1, transformMessage);
                                 
                             }
 
@@ -261,7 +263,8 @@ public class Peer2PeerClient : MonoBehaviour
             case MessageType.PLAYER_MOVE:
 
                 TransformMessage newTransform = new TransformMessage();
-                newTransform.newTransform = gameManager.player.transform; //Player's transform
+                newTransform.localPos = gameManager.player.transform.localPosition; //Player's pos
+                newTransform.rotation = gameManager.player.transform.rotation;
 
                 ret.type = MessageType.PLAYER_MOVE;
                 ret.message = JsonUtility.ToJson(newTransform); //Serialized with Json
@@ -299,6 +302,8 @@ public class Peer2PeerClient : MonoBehaviour
 
             loginMenu.SetActive(false);
             //GameMenu.SetActive(true);
+
+            username = usernameInput.text;
 
             state = ClientState.WAITING;
 
