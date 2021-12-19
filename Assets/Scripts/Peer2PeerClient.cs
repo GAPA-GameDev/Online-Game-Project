@@ -87,6 +87,7 @@ public class Peer2PeerClient : MonoBehaviour
     public InputField usernameInput;
 
     public GameObject loginMenu; //Object holding all the LoginMenu to be deactivated
+    public GameObject waitingMenu;
     //public GameObject GameMenu;
 
     IPEndPoint otherClientIP;
@@ -102,6 +103,8 @@ public class Peer2PeerClient : MonoBehaviour
     {
         //GameMenu.SetActive(false);
         loginMenu.SetActive(true);
+        waitingMenu.SetActive(false);
+        
     }
 
     // Update is called once per frame
@@ -301,6 +304,7 @@ public class Peer2PeerClient : MonoBehaviour
             otherClientIP = new IPEndPoint(IPAddress.Any, otherPort); //Here we save the other client's IP to send messages
 
             loginMenu.SetActive(false);
+            waitingMenu.SetActive(true);
             //GameMenu.SetActive(true);
 
             username = usernameInput.text;
@@ -317,6 +321,17 @@ public class Peer2PeerClient : MonoBehaviour
                 Debug.Log(string.Concat(username,": Other client is not available yet"));
             }
 
+        }
+    }
+
+    public void BackLogin()
+    {
+        if (state == ClientState.WAITING)
+        {
+            socket.Close();
+            state = ClientState.LOGIN;
+            loginMenu.SetActive(true);
+            waitingMenu.SetActive(false);
         }
     }
 
@@ -365,8 +380,11 @@ public class Peer2PeerClient : MonoBehaviour
         socket.Close();
     }
 
+   
+
     void StartGame()
     {
+        waitingMenu.SetActive(false);
 
         gameManager.StartGame();
 

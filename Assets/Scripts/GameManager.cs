@@ -46,8 +46,8 @@ public class GameManager : MonoBehaviour
     public TextMeshPro player1Usernam;
     public TextMeshPro player2Username;
 
-    PlaceHolderMOVEMENT player1Script;
-    Player2 player2Script;
+    public PlaceHolderMOVEMENT player1Script;
+    public Player2 player2Script;
 
 
     public GameObject pauseMenu;
@@ -153,7 +153,8 @@ public class GameManager : MonoBehaviour
 
                         if (round < maxRounds) //If there are more rounds just go to the next one
                         {
-                            if(player1Wins > maxRounds/2 || player2Wins > maxRounds / 2)
+                            
+                            if((player1Wins > (maxRounds/2.0f)) || (player2Wins > (maxRounds / 2.0f)))
                             {
                                 gameState = GameState.END_SCREEN;
 
@@ -164,8 +165,6 @@ public class GameManager : MonoBehaviour
                                 gameState = GameState.NEXT_ROUND;
                             }
 
-
-                           
                         }
                         else //If ther rounds are over then the game is over!!
                         {
@@ -208,6 +207,8 @@ public class GameManager : MonoBehaviour
                     gameState = GameState.START_GAME;
                     EndGameMenu.SetActive(false);
                     endGameTimer = 0.0f;
+                    player1Wins = 0;
+                    player2Wins = 0;
                 }
                 else
                 {
@@ -227,15 +228,10 @@ public class GameManager : MonoBehaviour
 
     void SetUpNewRound()
     {
-        if(round < 3) //If less than the max rounds just spawn them with max health
+        if(round <= maxRounds) //If less than the max rounds just spawn them with max health
         {
-            if(round == 0)
-            {
-                //Spawn Level In (Activate object or instantiate prefab or whatever)
-            }
 
             //Spawn and Move players to starting positions
-
             player.SetActive(true);
             enemyPlayer.SetActive(true);
 
@@ -253,6 +249,8 @@ public class GameManager : MonoBehaviour
 
             player1Script.health = player1Script.maxHealth;
             player2Script.health = player2Script.maxHealth;
+
+
 
         }
     }
