@@ -1186,6 +1186,14 @@ PrefabInstance:
       propertyPath: player2
       value: 
       objectReference: {fileID: 1096126658}
+    - target: {fileID: 6408087335403711547, guid: 39dedefe0c992424d8a53c75e2016466, type: 3}
+      propertyPath: horizontalAxis
+      value: Horizontal2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6408087335403711547, guid: 39dedefe0c992424d8a53c75e2016466, type: 3}
+      propertyPath: verticalAxis
+      value: Vertical2
+      objectReference: {fileID: 0}
     - target: {fileID: 9202431227216404351, guid: 39dedefe0c992424d8a53c75e2016466, type: 3}
       propertyPath: m_LocalPosition.x
       value: 33.7

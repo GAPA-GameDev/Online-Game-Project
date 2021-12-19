@@ -9,6 +9,9 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
     public float speed = 6f;
     public Animator animator;
 
+    public string horizontalAxis = "Horizontal";
+    public string verticalAxis = "Vertical";
+
     public Player2 player2;
     public GameManager gameManager;
     public Peer2PeerClient client;
@@ -61,8 +64,8 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
 
 
             //GET AXIS MOVEMENT
-            float horizontal = Input.GetAxisRaw("Horizontal");
-            float vertical = Input.GetAxisRaw("Vertical");
+            float horizontal = Input.GetAxisRaw(horizontalAxis);
+            float vertical = Input.GetAxisRaw(verticalAxis);
             Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
             animator.SetFloat("velocity", Mathf.Abs(horizontal) + Mathf.Abs(vertical));
