@@ -49,7 +49,6 @@ public class GameManager : MonoBehaviour
     public PlaceHolderMOVEMENT player1Script;
     public Player2 player2Script;
 
-
     public GameObject pauseMenu;
 
     public bool paused = false; //If pause menu is open, just stop player movement/input
