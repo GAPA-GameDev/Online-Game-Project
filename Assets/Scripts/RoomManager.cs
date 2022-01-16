@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Photon.Realtime;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
@@ -11,11 +12,12 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public InputField createRoomInput;
     public InputField joinRoomInput;
     public InputField usernameInput;
-
+    RoomOptions roomOptions;
     // Start is called before the first frame update
     void Start()
     {
-        
+        roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 2;
     }
 
     // Update is called once per frame
@@ -32,8 +34,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
             {
                 PhotonNetwork.LocalPlayer.NickName = usernameInput.text;
             }
-
-            PhotonNetwork.CreateRoom(createRoomInput.text);
+           
+            PhotonNetwork.CreateRoom(createRoomInput.text, roomOptions);
         }
     }
 
@@ -57,7 +59,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
             PhotonNetwork.LocalPlayer.NickName = usernameInput.text;
         }
 
-        PhotonNetwork.JoinRandomOrCreateRoom();
+        PhotonNetwork.JoinRandomOrCreateRoom(null,2,MatchmakingMode.FillRoom,null,null,null, roomOptions);
     }
 
     public override void OnJoinedRoom()
