@@ -10,6 +10,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public InputField createRoomInput;
     public InputField joinRoomInput;
+    public InputField usernameInput;
 
     // Start is called before the first frame update
     void Start()
@@ -27,6 +28,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
     {
         if(createRoomInput.text.Length > 0)
         {
+            if (usernameInput.text.Length > 0)
+            {
+                PhotonNetwork.LocalPlayer.NickName = usernameInput.text;
+            }
+
             PhotonNetwork.CreateRoom(createRoomInput.text);
         }
     }
@@ -35,12 +41,22 @@ public class RoomManager : MonoBehaviourPunCallbacks
     {
         if (joinRoomInput.text.Length > 0)
         {
+            if (usernameInput.text.Length > 0)
+            {
+                PhotonNetwork.LocalPlayer.NickName = usernameInput.text;
+            }
+
             PhotonNetwork.JoinRoom(joinRoomInput.text);
         }
     }
 
     public void OnJoinRandomRoom()
     {
+        if (usernameInput.text.Length > 0)
+        {
+            PhotonNetwork.LocalPlayer.NickName = usernameInput.text;
+        }
+
         PhotonNetwork.JoinRandomOrCreateRoom();
     }
 

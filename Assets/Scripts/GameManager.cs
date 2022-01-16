@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
 
+using Cinemachine;
 public enum GameState
 {
     NONE =0,
@@ -48,7 +49,7 @@ public class GameManager : MonoBehaviour
     GameObject player; //Local Player
     GameObject enemyPlayer; //
 
-    
+    public CinemachineVirtualCamera cineCamera;
 
     public PlaceHolderMOVEMENT player1Script;
     public PlaceHolderMOVEMENT player2Script;
@@ -132,6 +133,8 @@ public class GameManager : MonoBehaviour
                         player = PhotonNetwork.Instantiate("Player2", spawnPointPlayer2.position, Quaternion.identity);
                     }
 
+                    cineCamera.Follow = player.transform;
+
                     player1Script = player.GetComponent<PlaceHolderMOVEMENT>();
 
                     gameState = GameState.START_GAME;
@@ -167,8 +170,18 @@ public class GameManager : MonoBehaviour
                     //Set Up new Game
                     round = 0;
 
-                    player1Script.playerUsernam.text = "Micu1";
-                    player2Script.playerUsernam.text = "Micu2";
+                    player1Script.playerUsernam.text = PhotonNetwork.LocalPlayer.NickName;
+
+
+                    if(playerNum == 1)
+                    {
+                        player2Script.playerUsernam.text = PhotonNetwork.CurrentRoom.Players[2].NickName;
+                    }
+                    else
+                    {
+                        player2Script.playerUsernam.text = PhotonNetwork.CurrentRoom.Players[1].NickName;
+                    }
+
 
                     gameState = GameState.NEXT_ROUND;
                 }
@@ -351,6 +364,16 @@ public class GameManager : MonoBehaviour
        
         Debug.Log("Raised Disconnection Event");
         SceneManager.LoadScene("Lobby"); //Disconnection
+    }
+
+    void OnDestroy()
+    {
+        PhotonNetwork.RaiseEvent(1, null, RaiseEventOptions.Default, SendOptions.SendReliable); // 1=disconnection
+    }
+
+    void OnApplicationQuit()
+    {
+        PhotonNetwork.RaiseEvent(1, null, RaiseEventOptions.Default, SendOptions.SendReliable); // 1=disconnection
     }
 
     //PlayerNum refers to the player which will be acted upon 

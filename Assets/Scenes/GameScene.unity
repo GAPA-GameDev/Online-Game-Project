@@ -1443,6 +1443,10 @@ PrefabInstance:
       propertyPath: endGameText
       value: 
       objectReference: {fileID: 1167353263}
+    - target: {fileID: 5482534914861647898, guid: 18bb30561f930984592d4f3bf065fbaf, type: 3}
+      propertyPath: cineCamera
+      value: 
+      objectReference: {fileID: 774931670}
     - target: {fileID: 5482534914861647899, guid: 18bb30561f930984592d4f3bf065fbaf, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.504957
