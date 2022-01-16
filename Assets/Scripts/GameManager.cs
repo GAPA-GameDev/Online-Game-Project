@@ -4,6 +4,9 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Photon.Pun;
+using UnityEngine.SceneManagement;
+using Photon.Realtime;
+using ExitGames.Client.Photon;
 
 public enum GameState
 {
@@ -88,11 +91,24 @@ public class GameManager : MonoBehaviour
     private void NetworkingClient_EventReceived(ExitGames.Client.Photon.EventData obj)
     {
         Debug.Log("Event Received");
-        if (obj.Code == 0)
+
+        switch(obj.Code)
         {
-            player1Script.ReceiveDamage();
-            Debug.Log("Event Received: Take Damage");
+            case 0:
+
+                player1Script.ReceiveDamage();
+
+                break;
+
+            case 1:
+
+                PhotonNetwork.LeaveRoom();
+                Debug.Log("Leave Room");
+                SceneManager.LoadScene("Lobby"); //Disconnection
+
+                break;
         }
+        
     }
 
 
@@ -330,7 +346,11 @@ public class GameManager : MonoBehaviour
         //Maybe show player that the other one disconnected?
         pauseMenu.SetActive(false);
 
-
+        PhotonNetwork.RaiseEvent(1, null, RaiseEventOptions.Default, SendOptions.SendReliable); // 1=disconnection
+        PhotonNetwork.LeaveRoom();
+       
+        Debug.Log("Raised Disconnection Event");
+        SceneManager.LoadScene("Lobby"); //Disconnection
     }
 
     //PlayerNum refers to the player which will be acted upon 
