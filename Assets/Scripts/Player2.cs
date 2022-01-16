@@ -26,19 +26,19 @@ public class Player2 : MonoBehaviour
         
     }
 
-    public void ShootBullet(ShotMessage shot) //Replicates the other player's shot
-    {
-        GameObject bullet = Instantiate(bulletPrefab, shot.initialPos, shot.initialRotation);
+    //public void ShootBullet(ShotMessage shot) //Replicates the other player's shot
+    //{
+    //    GameObject bullet = Instantiate(bulletPrefab, shot.initialPos, shot.initialRotation);
 
-        Bullet bulletScript = bullet.GetComponent<Bullet>();
-        bulletScript.player = player;
-        bulletScript.player2 = this;
+    //    Bullet bulletScript = bullet.GetComponent<Bullet>();
+    //    bulletScript.player = player;
+    //    bulletScript.player2 = this;
 
 
-        Rigidbody rb = bullet.GetComponent<Rigidbody>();
-        Vector3 force = shot.initialForce;
-        rb.AddForce(force, ForceMode.Impulse);
-    }
+    //    Rigidbody rb = bullet.GetComponent<Rigidbody>();
+    //    Vector3 force = shot.initialForce;
+    //    rb.AddForce(force, ForceMode.Impulse);
+    //}
 
     public void ReceiveBulletDamage()
     {

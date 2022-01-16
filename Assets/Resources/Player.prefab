@@ -2180,6 +2180,7 @@ GameObject:
   - component: {fileID: 6408087335403711547}
   - component: {fileID: 2836004473748832714}
   - component: {fileID: 2836004473748832715}
+  - component: {fileID: 2675448433120473004}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2269,11 +2270,11 @@ MonoBehaviour:
   verticalAxis: Vertical
   player2: {fileID: 0}
   gameManager: {fileID: 0}
-  client: {fileID: 0}
   fireOrigin: {fileID: 6408087334964009339}
   bulletPrefab: {fileID: 2609983681669671269, guid: 3b54d968e5f11024e8ea74f51ba6db39, type: 3}
   bulletForce: 50
   fireRate: 0.4
+  playerUsernam: {fileID: 1416693696936819404}
   activeWeapon: 2
   gravity: -9.81
   health: 100
@@ -2306,7 +2307,8 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 2836004473748832715}
-  sceneViewId: 1
+  - {fileID: 2675448433120473004}
+  sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!114 &2836004473748832715
@@ -2334,7 +2336,7 @@ MonoBehaviour:
     ExtrapolateNumberOfStoredPositions: 1
   m_RotationModel:
     SynchronizeEnabled: 1
-    InterpolateOption: 1
+    InterpolateOption: 2
     InterpolateRotateTowardsSpeed: 180
     InterpolateLerpSpeed: 5
   m_ScaleModel:
@@ -2342,6 +2344,36 @@ MonoBehaviour:
     InterpolateOption: 0
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
+--- !u!114 &2675448433120473004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9202431227216626527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 1
+    SynchronizeType: 1
+    Name: velocity
+  - Type: 9
+    SynchronizeType: 1
+    Name: shooting_s
+  - Type: 9
+    SynchronizeType: 1
+    Name: shooting_a
+  - Type: 9
+    SynchronizeType: 1
+    Name: shooting_b
+  m_SynchronizeLayers:
+  - SynchronizeType: 0
+    LayerIndex: 0
 --- !u!1 &9202431227216626529
 GameObject:
   m_ObjectHideFlags: 0

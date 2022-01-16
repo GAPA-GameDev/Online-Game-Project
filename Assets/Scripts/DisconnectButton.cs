@@ -8,12 +8,12 @@ public class DisconnectButton : MonoBehaviour
 
     public string clientName;
 
-    Peer2PeerClient client;
+    //Peer2PeerClient client;
 
     // Start is called before the first frame update
     void Start()
     {
-        client = GameObject.Find(clientName).GetComponent< Peer2PeerClient>();
+        //client = GameObject.Find(clientName).GetComponent< Peer2PeerClient>();
 
         gameObject.GetComponent<Button>().onClick.AddListener(OnClickDisconnect);
     }
@@ -26,6 +26,6 @@ public class DisconnectButton : MonoBehaviour
 
     void OnClickDisconnect()
     {
-        client.OnDisconnect();
+        //client.OnDisconnect();
     }
 }

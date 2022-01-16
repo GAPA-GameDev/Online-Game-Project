@@ -1,500 +1,500 @@
-﻿using UnityEngine;
+﻿//using UnityEngine;
 
-using System.Text;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
+//using System.Text;
+//using System.IO;
+//using System.Net;
+//using System.Net.Sockets;
 
-using UnityEngine.UI;
+//using UnityEngine.UI;
 
-using UnityEngine.UIElements;
+//using UnityEngine.UIElements;
 
-public enum ClientState
-{
-    LOGIN,
-    WAITING,
-    PLAYING,
-    NONE
-}
-enum MessageType
-{
-    CONNECT,
-    PLAYER_MOVE,
-    PLAYER_SHOOT,
-    PLAYER_RECEIVE_SHOT, //When bullet hits player
-    DISCONNECT,
-    NONE = 0
-}
-class Message
-{
-    public MessageType type;
-    public string message;
-}
-public class TransformMessage
-{
-    public Vector3 localPos;
-    public Quaternion rotation;
-}
+//public enum ClientState
+//{
+//    LOGIN,
+//    WAITING,
+//    PLAYING,
+//    NONE
+//}
+//enum MessageType
+//{
+//    CONNECT,
+//    PLAYER_MOVE,
+//    PLAYER_SHOOT,
+//    PLAYER_RECEIVE_SHOT, //When bullet hits player
+//    DISCONNECT,
+//    NONE = 0
+//}
+//class Message
+//{
+//    public MessageType type;
+//    public string message;
+//}
+//public class TransformMessage
+//{
+//    public Vector3 localPos;
+//    public Quaternion rotation;
+//}
 
-public class ShotMessage
-{
-    public Vector3 initialPos;
-    public Quaternion initialRotation;
-    public Vector3 initialForce;
-}
+//public class ShotMessage
+//{
+//    public Vector3 initialPos;
+//    public Quaternion initialRotation;
+//    public Vector3 initialForce;
+//}
 
-class ReceiveShotMessage
-{
+//class ReceiveShotMessage
+//{
 
-}
+//}
 
-class ConnectMessage
-{
-    public string username;
-    public Color color;
-    public int playerNum = 1; //The number player the user is
-}
+//class ConnectMessage
+//{
+//    public string username;
+//    public Color color;
+//    public int playerNum = 1; //The number player the user is
+//}
 
-class DisconnectMessage //Idk if this should do anything
-{
-
-
-}
-
-public class Peer2PeerClient : MonoBehaviour
-{
-    public GameManager gameManager;
-
-    public int playerNum = 1; //either 1 or 2 (This helps when having both scenes at the same screen and deciding the starting position)
-    public float screenOffset = 0;
-
-    public ClientState state = ClientState.LOGIN;
-
-    private UdpClient socket; //This clien'ts Udp socket
-
-    public string username = "None";
-    Color color = Color.black;
-
-    public string enemyUsername = "None";
-    Color enemyColor = Color.black;
-
-    public int port; //This client's port (Local)
-    public int otherPort; //Other clien'ts port (Local)
-    string host = "127.0.0.1";
-
-    public InputField portInput; //Input field for this client's port
-    public InputField opponentPortInput; //Input field for the other client's port
-    public InputField usernameInput;
-
-    public GameObject loginMenu; //Object holding all the LoginMenu to be deactivated
-    public GameObject waitingMenu;
-    //public GameObject GameMenu;
-
-    IPEndPoint otherClientIP;
-
-    public ObjectStateInfo ourClientInfo;
-    ByteConstants constants;
-
-    //Possibly have an array of messages to send (All actions the player wants the other one to know)
+//class DisconnectMessage //Idk if this should do anything
+//{
 
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        //GameMenu.SetActive(false);
-        loginMenu.SetActive(true);
-        waitingMenu.SetActive(false);
+//}
+
+//public class Peer2PeerClient : MonoBehaviour
+//{
+//    public GameManager gameManager;
+
+//    public int playerNum = 1; //either 1 or 2 (This helps when having both scenes at the same screen and deciding the starting position)
+//    public float screenOffset = 0;
+
+//    public ClientState state = ClientState.LOGIN;
+
+//    private UdpClient socket; //This clien'ts Udp socket
+
+//    public string username = "None";
+//    Color color = Color.black;
+
+//    public string enemyUsername = "None";
+//    Color enemyColor = Color.black;
+
+//    public int port; //This client's port (Local)
+//    public int otherPort; //Other clien'ts port (Local)
+//    string host = "127.0.0.1";
+
+//    public InputField portInput; //Input field for this client's port
+//    public InputField opponentPortInput; //Input field for the other client's port
+//    public InputField usernameInput;
+
+//    public GameObject loginMenu; //Object holding all the LoginMenu to be deactivated
+//    public GameObject waitingMenu;
+//    //public GameObject GameMenu;
+
+//    IPEndPoint otherClientIP;
+
+//    public ObjectStateInfo ourClientInfo;
+//    ByteConstants constants;
+
+//    //Possibly have an array of messages to send (All actions the player wants the other one to know)
+
+
+//    // Start is called before the first frame update
+//    void Start()
+//    {
+//        //GameMenu.SetActive(false);
+//        loginMenu.SetActive(true);
+//        waitingMenu.SetActive(false);
         
-    }
+//    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        byte[] buffer;
-        string stringBuffer;
+//    // Update is called once per frame
+//    void Update()
+//    {
+//        byte[] buffer;
+//        string stringBuffer;
 
-        switch (state)
-        {
+//        switch (state)
+//        {
 
-            case ClientState.LOGIN:
+//            case ClientState.LOGIN:
                 
 
 
-                break;
+//                break;
 
-            case ClientState.WAITING:
+//            case ClientState.WAITING:
 
-                if (socket.Client.Poll(0, SelectMode.SelectRead))
-                {
-                    buffer = socket.Receive(ref otherClientIP);
-                    stringBuffer = Encoding.ASCII.GetString(buffer); //Decode from ASCII
-                    Message receivedMessage = JsonUtility.FromJson<Message>(stringBuffer); //Deserialize from Json
+//                if (socket.Client.Poll(0, SelectMode.SelectRead))
+//                {
+//                    buffer = socket.Receive(ref otherClientIP);
+//                    stringBuffer = Encoding.ASCII.GetString(buffer); //Decode from ASCII
+//                    Message receivedMessage = JsonUtility.FromJson<Message>(stringBuffer); //Deserialize from Json
 
-                    switch (receivedMessage.type) //Here we have the switch for the different messages received
-                    {
-                        case MessageType.CONNECT:
+//                    switch (receivedMessage.type) //Here we have the switch for the different messages received
+//                    {
+//                        case MessageType.CONNECT:
 
-                            //Fill in opponent's info
-                            ConnectMessage connectMessage = JsonUtility.FromJson<ConnectMessage>(receivedMessage.message);
+//                            //Fill in opponent's info
+//                            ConnectMessage connectMessage = JsonUtility.FromJson<ConnectMessage>(receivedMessage.message);
 
-                            enemyUsername = connectMessage.username;
-                            enemyColor = connectMessage.color;
+//                            enemyUsername = connectMessage.username;
+//                            enemyColor = connectMessage.color;
                             
-                            if(connectMessage.playerNum == 1)
-                            {
-                                playerNum = 2;
-                            }
-                            else
-                            {
-                                playerNum = 1;
-                            }
+//                            if(connectMessage.playerNum == 1)
+//                            {
+//                                playerNum = 2;
+//                            }
+//                            else
+//                            {
+//                                playerNum = 1;
+//                            }
 
-                            SendMessage(MessageType.CONNECT);
+//                            SendMessage(MessageType.CONNECT);
 
-                            //Start Game
+//                            //Start Game
 
-                            StartGame();
+//                            StartGame();
 
-                            break;
-                    }
-                }
+//                            break;
+//                    }
+//                }
 
 
-                break;
+//                break;
 
-            case ClientState.PLAYING:
+//            case ClientState.PLAYING:
 
-                //Right now we constantly send the TransformMessage, later on we should make it so it waits for the other client to respond after getting the message to send it again?
+//                //Right now we constantly send the TransformMessage, later on we should make it so it waits for the other client to respond after getting the message to send it again?
                 
-                if(gameManager.gameState == GameState.PLAYING)
-                {
-                    SendMessage(MessageType.PLAYER_MOVE); //Wait for other client to respond with an ok
-                }
+//                if(gameManager.gameState == GameState.PLAYING)
+//                {
+//                    SendMessage(MessageType.PLAYER_MOVE); //Wait for other client to respond with an ok
+//                }
                 
 
-                while (socket.Client.Poll(0, SelectMode.SelectRead))
-                {
+//                while (socket.Client.Poll(0, SelectMode.SelectRead))
+//                {
 
-                    buffer = socket.Receive(ref otherClientIP);
-                    stringBuffer = Encoding.ASCII.GetString(buffer); //Decode from ASCII
-                    Message receivedMessage2 = JsonUtility.FromJson<Message>(stringBuffer); //Deserialize from Json
+//                    buffer = socket.Receive(ref otherClientIP);
+//                    stringBuffer = Encoding.ASCII.GetString(buffer); //Decode from ASCII
+//                    Message receivedMessage2 = JsonUtility.FromJson<Message>(stringBuffer); //Deserialize from Json
 
 
-                    switch (receivedMessage2.type) //Here we have the switch for the different messages received
-                    {
-                        case MessageType.PLAYER_MOVE:
+//                    switch (receivedMessage2.type) //Here we have the switch for the different messages received
+//                    {
+//                        case MessageType.PLAYER_MOVE:
 
-                            TransformMessage transformMessage = JsonUtility.FromJson<TransformMessage>(receivedMessage2.message);
+//                            TransformMessage transformMessage = JsonUtility.FromJson<TransformMessage>(receivedMessage2.message);
                             
 
-                            if (playerNum == 1) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
-                            {
-                                gameManager.MovePlayer(2, transformMessage); 
-                            }
-                            else //Send Player to the right (+x)
-                            {
-                                gameManager.MovePlayer(1, transformMessage);
+//                            if (playerNum == 1) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
+//                            {
+//                                gameManager.MovePlayer(2, transformMessage); 
+//                            }
+//                            else //Send Player to the right (+x)
+//                            {
+//                                gameManager.MovePlayer(1, transformMessage);
                                 
-                            }
+//                            }
 
-                            break;
+//                            break;
 
-                        case MessageType.PLAYER_SHOOT:
+//                        case MessageType.PLAYER_SHOOT:
 
-                            ShotMessage shotMessage = JsonUtility.FromJson<ShotMessage>(receivedMessage2.message);
+//                            ShotMessage shotMessage = JsonUtility.FromJson<ShotMessage>(receivedMessage2.message);
 
-                            if (playerNum == 2) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
-                            {
-                                shotMessage.initialPos.x -= screenOffset;
-                            }
-                            else
-                            {
-                                shotMessage.initialPos.x += screenOffset;
-                            }
+//                            if (playerNum == 2) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
+//                            {
+//                                shotMessage.initialPos.x -= screenOffset;
+//                            }
+//                            else
+//                            {
+//                                shotMessage.initialPos.x += screenOffset;
+//                            }
 
-                            gameManager.enemyPlayer.GetComponent<Player2>().ShootBullet(shotMessage);
+//                            gameManager.enemyPlayer.GetComponent<Player2>().ShootBullet(shotMessage);
 
-                            break;
+//                            break;
 
-                        case MessageType.PLAYER_RECEIVE_SHOT:
+//                        case MessageType.PLAYER_RECEIVE_SHOT:
 
-                            Debug.Log("Player received Damage (client)");
-                            gameManager.player.GetComponent<PlaceHolderMOVEMENT>().ReceiveDamage();
+//                            Debug.Log("Player received Damage (client)");
+//                            gameManager.player.GetComponent<PlaceHolderMOVEMENT>().ReceiveDamage();
 
-                            break;
+//                            break;
 
-                        case MessageType.DISCONNECT:
+//                        case MessageType.DISCONNECT:
 
-                            Disconnect();
+//                            Disconnect();
 
-                            break;
-                    }
-                }
+//                            break;
+//                    }
+//                }
 
-                break;
-        }
-    }
+//                break;
+//        }
+//    }
 
-    Message SendMessage(MessageType type)
-    {
-        Message ret = new Message();
+//    Message SendMessage(MessageType type)
+//    {
+//        Message ret = new Message();
 
-        switch(type)
-        {
-            case MessageType.CONNECT:
+//        switch(type)
+//        {
+//            case MessageType.CONNECT:
 
-                ConnectMessage connectMessage = new ConnectMessage();
+//                ConnectMessage connectMessage = new ConnectMessage();
 
-                connectMessage.username = username;
-                connectMessage.color = color;
-                connectMessage.playerNum = playerNum;
+//                connectMessage.username = username;
+//                connectMessage.color = color;
+//                connectMessage.playerNum = playerNum;
 
-                ret.type = MessageType.CONNECT;
-                ret.message = JsonUtility.ToJson(connectMessage); //Serialized with Json
+//                ret.type = MessageType.CONNECT;
+//                ret.message = JsonUtility.ToJson(connectMessage); //Serialized with Json
 
-                break;
+//                break;
 
-            case MessageType.DISCONNECT:
+//            case MessageType.DISCONNECT:
 
-                DisconnectMessage disconnectMessage = new DisconnectMessage();
+//                DisconnectMessage disconnectMessage = new DisconnectMessage();
 
-                ret.type = MessageType.DISCONNECT;
-                ret.message = JsonUtility.ToJson(disconnectMessage); //Serialized with Json
+//                ret.type = MessageType.DISCONNECT;
+//                ret.message = JsonUtility.ToJson(disconnectMessage); //Serialized with Json
 
-                break;
+//                break;
 
-            case MessageType.PLAYER_MOVE:
+//            case MessageType.PLAYER_MOVE:
 
-                TransformMessage newTransform = new TransformMessage();
-                newTransform.localPos = gameManager.player.transform.localPosition; //Player's pos
-                newTransform.rotation = gameManager.player.transform.rotation;
+//                TransformMessage newTransform = new TransformMessage();
+//                newTransform.localPos = gameManager.player.transform.localPosition; //Player's pos
+//                newTransform.rotation = gameManager.player.transform.rotation;
 
-                ret.type = MessageType.PLAYER_MOVE;
-                ret.message = JsonUtility.ToJson(newTransform); //Serialized with Json
+//                ret.type = MessageType.PLAYER_MOVE;
+//                ret.message = JsonUtility.ToJson(newTransform); //Serialized with Json
 
-                break;
+//                break;
 
-            case MessageType.PLAYER_RECEIVE_SHOT:
+//            case MessageType.PLAYER_RECEIVE_SHOT:
 
-                ReceiveShotMessage receivedShotMessage = new ReceiveShotMessage();
+//                ReceiveShotMessage receivedShotMessage = new ReceiveShotMessage();
 
-                ret.type = MessageType.PLAYER_RECEIVE_SHOT;
-                ret.message = JsonUtility.ToJson(receivedShotMessage); //Serialized with Json
+//                ret.type = MessageType.PLAYER_RECEIVE_SHOT;
+//                ret.message = JsonUtility.ToJson(receivedShotMessage); //Serialized with Json
 
-                break;
-        }
+//                break;
+//        }
 
 
-        string messageString = JsonUtility.ToJson(ret);
+//        string messageString = JsonUtility.ToJson(ret);
 
-        byte[] buffer = Encoding.ASCII.GetBytes(messageString); //Encoded with ASCII
-        socket.Send(buffer, buffer.Length, host, otherPort);
+//        byte[] buffer = Encoding.ASCII.GetBytes(messageString); //Encoded with ASCII
+//        socket.Send(buffer, buffer.Length, host, otherPort);
 
-        return ret;
-    }
+//        return ret;
+//    }
 
-    public void OnLogin() //This is called when the login button is pressed
-    {
-        if(portInput.text.Length >0 && opponentPortInput.text.Length >0) //Only if there is something written on the login boxes (This should have more safety checks later on)
-        {
-            port = int.Parse(portInput.text);
-            otherPort = int.Parse(opponentPortInput.text);
+//    public void OnLogin() //This is called when the login button is pressed
+//    {
+//        if(portInput.text.Length >0 && opponentPortInput.text.Length >0) //Only if there is something written on the login boxes (This should have more safety checks later on)
+//        {
+//            port = int.Parse(portInput.text);
+//            otherPort = int.Parse(opponentPortInput.text);
 
-            socket = new UdpClient(port);
-            otherClientIP = new IPEndPoint(IPAddress.Any, otherPort); //Here we save the other client's IP to send messages
+//            socket = new UdpClient(port);
+//            otherClientIP = new IPEndPoint(IPAddress.Any, otherPort); //Here we save the other client's IP to send messages
 
-            loginMenu.SetActive(false);
-            waitingMenu.SetActive(true);
-            //GameMenu.SetActive(true);
+//            loginMenu.SetActive(false);
+//            waitingMenu.SetActive(true);
+//            //GameMenu.SetActive(true);
 
-            username = usernameInput.text;
+//            username = usernameInput.text;
 
-            state = ClientState.WAITING;
+//            state = ClientState.WAITING;
 
-            try
-            {
-                //Send a first message so that the other client knows we are here and stops waiting
-                SendMessage(MessageType.CONNECT);
-            }
-            catch
-            {
-                Debug.Log(string.Concat(username,": Other client is not available yet"));
-            }
+//            try
+//            {
+//                //Send a first message so that the other client knows we are here and stops waiting
+//                SendMessage(MessageType.CONNECT);
+//            }
+//            catch
+//            {
+//                Debug.Log(string.Concat(username,": Other client is not available yet"));
+//            }
 
-        }
-    }
+//        }
+//    }
 
-    public void BackLogin()
-    {
-        if (state == ClientState.WAITING)
-        {
-            socket.Close();
-            state = ClientState.LOGIN;
-            loginMenu.SetActive(true);
-            waitingMenu.SetActive(false);
-        }
-    }
+//    public void BackLogin()
+//    {
+//        if (state == ClientState.WAITING)
+//        {
+//            socket.Close();
+//            state = ClientState.LOGIN;
+//            loginMenu.SetActive(true);
+//            waitingMenu.SetActive(false);
+//        }
+//    }
 
-    public void OnDisconnect()
-    {
-        SendMessage(MessageType.DISCONNECT);
+//    public void OnDisconnect()
+//    {
+//        SendMessage(MessageType.DISCONNECT);
 
-        Disconnect();
-    }
+//        Disconnect();
+//    }
 
-    public void OnShoot(GameObject bullet,Vector3 force) //What to do when local player shoots (Send shot message to other player)
-    {
-        //Maybe receive orientation, force and such
-        Message ret = new Message();
+//    public void OnShoot(GameObject bullet,Vector3 force) //What to do when local player shoots (Send shot message to other player)
+//    {
+//        //Maybe receive orientation, force and such
+//        Message ret = new Message();
 
-        ShotMessage shotMessage = new ShotMessage();
+//        ShotMessage shotMessage = new ShotMessage();
 
-        shotMessage.initialPos = bullet.transform.position;
-        shotMessage.initialRotation = bullet.transform.rotation;
-        shotMessage.initialForce = force;
+//        shotMessage.initialPos = bullet.transform.position;
+//        shotMessage.initialRotation = bullet.transform.rotation;
+//        shotMessage.initialForce = force;
 
-        ret.type = MessageType.PLAYER_SHOOT;
-        ret.message = JsonUtility.ToJson(shotMessage); //Serialized with Json
+//        ret.type = MessageType.PLAYER_SHOOT;
+//        ret.message = JsonUtility.ToJson(shotMessage); //Serialized with Json
 
-        string messageString = JsonUtility.ToJson(ret);
+//        string messageString = JsonUtility.ToJson(ret);
 
-        byte[] buffer = Encoding.ASCII.GetBytes(messageString); //Encoded with ASCII
-        socket.Send(buffer, buffer.Length, host, otherPort);
-    }
+//        byte[] buffer = Encoding.ASCII.GetBytes(messageString); //Encoded with ASCII
+//        socket.Send(buffer, buffer.Length, host, otherPort);
+//    }
 
-    public void OnHit() //When a bullet hits (Send message to other player that it has been hit)
-    {
-        Debug.Log("Sending message to other player been hit");
-        SendMessage(MessageType.PLAYER_RECEIVE_SHOT);
-    }
+//    public void OnHit() //When a bullet hits (Send message to other player that it has been hit)
+//    {
+//        Debug.Log("Sending message to other player been hit");
+//        SendMessage(MessageType.PLAYER_RECEIVE_SHOT);
+//    }
 
-    public void Disconnect() //What to do when disconnecting
-    {
-        state = ClientState.LOGIN;
+//    public void Disconnect() //What to do when disconnecting
+//    {
+//        state = ClientState.LOGIN;
 
-        gameManager.OnDisconnect();
+//        gameManager.OnDisconnect();
 
-        loginMenu.SetActive(true);
-        //GameMenu.SetActive(false);
+//        loginMenu.SetActive(true);
+//        //GameMenu.SetActive(false);
 
-        socket.Close();
-    }
+//        socket.Close();
+//    }
 
    
 
-    void StartGame()
-    {
-        waitingMenu.SetActive(false);
+//    void StartGame()
+//    {
+//        waitingMenu.SetActive(false);
 
-        gameManager.StartGame();
+//        gameManager.StartGame();
 
-        state = ClientState.PLAYING; 
+//        state = ClientState.PLAYING; 
 
-        if (playerNum == 1)
-        {
-            //player = GameObject.Find("Player1");
-            //player.GetComponent<Material>().color = color;
-            //GameObject.Find("Player1Name").GetComponent<TextMeshPro>().text = username;
+//        if (playerNum == 1)
+//        {
+//            //player = GameObject.Find("Player1");
+//            //player.GetComponent<Material>().color = color;
+//            //GameObject.Find("Player1Name").GetComponent<TextMeshPro>().text = username;
 
-            //enemyPlayer = GameObject.Find("Player2");
-            //enemyPlayer.GetComponent<Material>().color = enemyColor;
-            //GameObject.Find("Player2Name").GetComponent<TextMeshPro>().text = enemyUsername;
-        }
-        else
-        {
-            //player = GameObject.Find("Player2");
-            //player.GetComponent<Material>().color = color;
-            //GameObject.Find("Player1Name").GetComponent<TextMeshPro>().text = username;
+//            //enemyPlayer = GameObject.Find("Player2");
+//            //enemyPlayer.GetComponent<Material>().color = enemyColor;
+//            //GameObject.Find("Player2Name").GetComponent<TextMeshPro>().text = enemyUsername;
+//        }
+//        else
+//        {
+//            //player = GameObject.Find("Player2");
+//            //player.GetComponent<Material>().color = color;
+//            //GameObject.Find("Player1Name").GetComponent<TextMeshPro>().text = username;
 
-            //enemyPlayer = GameObject.Find("Player1");
-            //enemyPlayer.GetComponent<Material>().color = enemyColor;
-            //GameObject.Find("Player2Name").GetComponent<TextMeshPro>().text = enemyUsername;
-        }
+//            //enemyPlayer = GameObject.Find("Player1");
+//            //enemyPlayer.GetComponent<Material>().color = enemyColor;
+//            //GameObject.Find("Player2Name").GetComponent<TextMeshPro>().text = enemyUsername;
+//        }
 
-    }
-}
-public class ByteConstants
-{
-    public const byte X_POSITION_MASK = 0b_0000_0001;
-    public const byte Y_POSITION_MASK = 0b_0000_0010;
-}
-enum PacketType
-{
-    OBJECT_STATE,
-    GAME_STATE,
-    CONNECTION_STATE,
-    UNKNOWN
-}
-public enum ActionType
-{
-    CREATE,
-    UPDATE,
-    DESTROY
-}
-public class ObjectStateInfo
-{
-    //non modifyable by replication
-    public string objectID;
-    public byte changedParameters = 0b00000000;
-    public ActionType action;
+//    }
+//}
+//public class ByteConstants
+//{
+//    public const byte X_POSITION_MASK = 0b_0000_0001;
+//    public const byte Y_POSITION_MASK = 0b_0000_0010;
+//}
+//enum PacketType
+//{
+//    OBJECT_STATE,
+//    GAME_STATE,
+//    CONNECTION_STATE,
+//    UNKNOWN
+//}
+//public enum ActionType
+//{
+//    CREATE,
+//    UPDATE,
+//    DESTROY
+//}
+//public class ObjectStateInfo
+//{
+//    //non modifyable by replication
+//    public string objectID;
+//    public byte changedParameters = 0b00000000;
+//    public ActionType action;
 
-    //modifyable by replication
-    public float x, y;
-}
-class BinarySerializer
-{
-    ByteConstants constants;
+//    //modifyable by replication
+//    public float x, y;
+//}
+//class BinarySerializer
+//{
+//    ByteConstants constants;
 
-    //PACKET STRUCTURE
-    // - Opening character: "#"
-    // - Header: packet size | player identifyer (network ID) | packet type (Object state, Game state or Connection state)
-    //   maybe adding a packet identifyer to the header could be useful to check if it has arrived to the other user that would send
-    //   an immediate response communicationg the packet that just arrived. May also help with redundant packets;
-    //   just check and compare the packet id, and you'll know if it has already been received or not.
-    // - ObjectStateContents: 
-    public void SerializeObjectState(ObjectStateInfo info, uint playerID)   //By the moment we only serialize one object at a time. 
-    {                                                                       //There should be a way to add more than one ObjectStateInfo.
-        PacketType type = PacketType.OBJECT_STATE;
-        int packetSize = 0;
+//    //PACKET STRUCTURE
+//    // - Opening character: "#"
+//    // - Header: packet size | player identifyer (network ID) | packet type (Object state, Game state or Connection state)
+//    //   maybe adding a packet identifyer to the header could be useful to check if it has arrived to the other user that would send
+//    //   an immediate response communicationg the packet that just arrived. May also help with redundant packets;
+//    //   just check and compare the packet id, and you'll know if it has already been received or not.
+//    // - ObjectStateContents: 
+//    public void SerializeObjectState(ObjectStateInfo info, uint playerID)   //By the moment we only serialize one object at a time. 
+//    {                                                                       //There should be a way to add more than one ObjectStateInfo.
+//        PacketType type = PacketType.OBJECT_STATE;
+//        int packetSize = 0;
 
-        byte[] resp = new byte[2048];
-        var memStream = new MemoryStream();
+//        byte[] resp = new byte[2048];
+//        var memStream = new MemoryStream();
 
-        //Calculate packet size
-        packetSize = sizeof(char)  // Opening character
-                   + sizeof(int)   // Packet Size
-                   + sizeof(uint)  // PlayerID
-                   + sizeof(int)   // Type
-                   + sizeof(int)   // Action (Create, Update, Destroy)
-                   + sizeof(uint)  // ObjectID
-                   + sizeof(byte); // Changed Parameters (following the order inside ObjectStateInfo class)
+//        //Calculate packet size
+//        packetSize = sizeof(char)  // Opening character
+//                   + sizeof(int)   // Packet Size
+//                   + sizeof(uint)  // PlayerID
+//                   + sizeof(int)   // Type
+//                   + sizeof(int)   // Action (Create, Update, Destroy)
+//                   + sizeof(uint)  // ObjectID
+//                   + sizeof(byte); // Changed Parameters (following the order inside ObjectStateInfo class)
 
-        packetSize += ((info.changedParameters & ByteConstants.X_POSITION_MASK) != 0) ? sizeof(float) : 0; // X
-        packetSize += ((info.changedParameters & ByteConstants.Y_POSITION_MASK) != 0) ? sizeof(float) : 0; // Y
+//        packetSize += ((info.changedParameters & ByteConstants.X_POSITION_MASK) != 0) ? sizeof(float) : 0; // X
+//        packetSize += ((info.changedParameters & ByteConstants.Y_POSITION_MASK) != 0) ? sizeof(float) : 0; // Y
 
-        using (BinaryWriter writer = new BinaryWriter(memStream)) //let's use a memory stream for the moment
-        {
-            writer.Write("#");
-            writer.Write(packetSize);
-            writer.Write(playerID);
-            writer.Write((int)type);
-            writer.Write(info.objectID);
-            writer.Write(info.changedParameters);
-            writer.Write((int)info.action);
-            if ((info.changedParameters & ByteConstants.X_POSITION_MASK) != 0) writer.Write(info.x);
-            if ((info.changedParameters & ByteConstants.Y_POSITION_MASK) != 0) writer.Write(info.y);
-        }
-    }
+//        using (BinaryWriter writer = new BinaryWriter(memStream)) //let's use a memory stream for the moment
+//        {
+//            writer.Write("#");
+//            writer.Write(packetSize);
+//            writer.Write(playerID);
+//            writer.Write((int)type);
+//            writer.Write(info.objectID);
+//            writer.Write(info.changedParameters);
+//            writer.Write((int)info.action);
+//            if ((info.changedParameters & ByteConstants.X_POSITION_MASK) != 0) writer.Write(info.x);
+//            if ((info.changedParameters & ByteConstants.Y_POSITION_MASK) != 0) writer.Write(info.y);
+//        }
+//    }
 
-    // - GameStateContents: 
-    public void SerializeGameState(uint playerID)
-    {
+//    // - GameStateContents: 
+//    public void SerializeGameState(uint playerID)
+//    {
 
-    }
+//    }
 
-    // - ConnectionStateContents:
-    public void SerializeConnectionState(uint playerID)
-    {
+//    // - ConnectionStateContents:
+//    public void SerializeConnectionState(uint playerID)
+//    {
 
-    }
-}
+//    }
+//}

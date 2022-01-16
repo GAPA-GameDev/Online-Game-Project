@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+using Photon.Pun;
 
 public class PlaceHolderMOVEMENT : MonoBehaviour
 {
@@ -14,7 +17,7 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
 
     public Player2 player2;
     public GameManager gameManager;
-    public Peer2PeerClient client;
+    //public Peer2PeerClient client;
 
     //shooting
     public Transform fireOrigin;
@@ -22,6 +25,12 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
     public float bulletForce = 50f;
     public float fireRate;
     private float cdTimeStamp;
+
+    public TextMeshPro playerUsernam;
+
+    //Photon
+    PhotonView photoView;
+
     public enum Weapon
     {
         Single,
@@ -55,11 +64,15 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
         activeWeapon = Weapon.Single;
 
         health = maxHealth;
+
+        photoView = GetComponent<PhotonView>();
+
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     void Update()
     {
-        if (!gameManager.paused && gameManager.allowInput)
+        if (!gameManager.paused && gameManager.allowInput && photoView.IsMine)
         {
 
 
@@ -153,17 +166,16 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
         {
             case Weapon.Single:
                 {
-                    GameObject bullet = Instantiate(bulletPrefab, fireOrigin.position, fireOrigin.rotation);
+                    GameObject bullet = PhotonNetwork.Instantiate(bulletPrefab.name, fireOrigin.position, fireOrigin.rotation);
 
                     Bullet bulletScript = bullet.GetComponent<Bullet>();
-                    bulletScript.player = this;
-                    bulletScript.player2 = player2;
+                    
 
                     Rigidbody rb = bullet.GetComponent<Rigidbody>();
                     Vector3 force = fireOrigin.up * bulletForce;
                     rb.AddForce(force, ForceMode.Impulse);
 
-                    client.OnShoot(bullet,force);
+                    //client.OnShoot(bullet,force);
 
                     break;
                 }
@@ -174,14 +186,13 @@ public class PlaceHolderMOVEMENT : MonoBehaviour
                     {
                         GameObject bullet = Instantiate(bulletPrefab, fireOrigin.position, fireOrigin.rotation);
                         Bullet bulletScript = bullet.GetComponent<Bullet>();
-                        bulletScript.player = this;
-                        bulletScript.player2 = player2;
+                        
 
                         Rigidbody rb = bullet.GetComponent<Rigidbody>();
                         Vector3 force = fireOrigin.up * bulletForce;
                         rb.AddForce(force, ForceMode.Impulse);
 
-                        client.OnShoot(bullet, force);
+                        //client.OnShoot(bullet, force);
 
                         yield return new WaitForSeconds(0.1f);
                     }

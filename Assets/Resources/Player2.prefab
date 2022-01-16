@@ -1629,7 +1629,10 @@ GameObject:
   - component: {fileID: 6972551618819306766}
   - component: {fileID: 6972551618118404747}
   - component: {fileID: 944401409669198050}
-  - component: {fileID: 8759033699662454202}
+  - component: {fileID: -2306801100549143221}
+  - component: {fileID: -8641688045208761448}
+  - component: {fileID: -5185048980902690784}
+  - component: {fileID: -6361018319403903582}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Player2
@@ -1699,7 +1702,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.95, z: 0}
---- !u!114 &8759033699662454202
+--- !u!114 &-2306801100549143221
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1708,15 +1711,121 @@ MonoBehaviour:
   m_GameObject: {fileID: 6972551618819205422}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57cfa5a40afb64c4d8ec819c067fc23e, type: 3}
+  m_Script: {fileID: 11500000, guid: 845cf7f38f64e554ebb91ae43893fd32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletPrefab: {fileID: 2609983681669671269, guid: 3b54d968e5f11024e8ea74f51ba6db39, type: 3}
-  player: {fileID: 0}
+  controller: {fileID: 944401409669198050}
+  FollowGO: {fileID: 2692128195772517117}
+  speed: 6
+  animator: {fileID: 6972551618118404747}
+  horizontalAxis: Horizontal
+  verticalAxis: Vertical
+  player2: {fileID: 0}
   gameManager: {fileID: 0}
+  fireOrigin: {fileID: 1302427883055442247}
+  bulletPrefab: {fileID: 2609983681669671269, guid: 3b54d968e5f11024e8ea74f51ba6db39, type: 3}
+  bulletForce: 50
+  fireRate: 0
+  playerUsernam: {fileID: 101997331}
+  activeWeapon: 0
+  gravity: -9.81
   health: 100
   maxHealth: 100
   bulletDamage: 10
+  velocity: {x: 0, y: 0, z: 0}
+  groundCheck: {fileID: 8330474333622860764}
+  groundDistance: 0.4
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 0
+  AimingPoint: {x: 0, y: 0, z: 0}
+--- !u!114 &-8641688045208761448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6972551618819205422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: -5185048980902690784}
+  - {fileID: -6361018319403903582}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &-5185048980902690784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6972551618819205422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8efc6b1d64977384eb3405357896c656, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PositionModel:
+    SynchronizeEnabled: 1
+    TeleportEnabled: 1
+    TeleportIfDistanceGreaterThan: 3
+    InterpolateOption: 2
+    InterpolateMoveTowardsSpeed: 1
+    InterpolateLerpSpeed: 1
+    ExtrapolateOption: 0
+    ExtrapolateSpeed: 1
+    ExtrapolateIncludingRoundTripTime: 1
+    ExtrapolateNumberOfStoredPositions: 1
+  m_RotationModel:
+    SynchronizeEnabled: 1
+    InterpolateOption: 2
+    InterpolateRotateTowardsSpeed: 180
+    InterpolateLerpSpeed: 5
+  m_ScaleModel:
+    SynchronizeEnabled: 0
+    InterpolateOption: 0
+    InterpolateMoveTowardsSpeed: 1
+    InterpolateLerpSpeed: 0
+--- !u!114 &-6361018319403903582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6972551618819205422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 1
+    SynchronizeType: 0
+    Name: velocity
+  - Type: 9
+    SynchronizeType: 0
+    Name: shooting_s
+  - Type: 9
+    SynchronizeType: 0
+    Name: shooting_a
+  - Type: 9
+    SynchronizeType: 0
+    Name: shooting_b
+  m_SynchronizeLayers:
+  - SynchronizeType: 0
+    LayerIndex: 0
 --- !u!1 &6972551618819205424
 GameObject:
   m_ObjectHideFlags: 0

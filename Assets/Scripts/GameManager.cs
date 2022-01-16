@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public enum GameState
 {
     NONE =0,
+    WAITING_PLAYER,
     START_GAME,
     PLAYING,
     NEXT_ROUND,
@@ -16,7 +18,7 @@ public enum GameState
 public class GameManager : MonoBehaviour
 {
 
-
+    int playerNum = 1;
 
     int round = 0;
     int maxRounds = 3;
@@ -36,23 +38,22 @@ public class GameManager : MonoBehaviour
     bool roundEnded = false;
     bool roundSetUp = false; //If the round has been set up yet
 
-    public Peer2PeerClient client;
+    //public Peer2PeerClient client;
 
     public GameState gameState = GameState.NONE;
 
-    public GameObject player; //The client's player
-    public GameObject enemyPlayer; //
+    GameObject player; //Local Player
+    GameObject enemyPlayer; //
 
-    public TextMeshPro player1Usernam;
-    public TextMeshPro player2Username;
+    
 
     public PlaceHolderMOVEMENT player1Script;
-    public Player2 player2Script;
+    public PlaceHolderMOVEMENT player2Script;
 
     public GameObject pauseMenu;
 
     public bool paused = false; //If pause menu is open, just stop player movement/input
-    public bool allowInput = false; //Allows player to move their character
+    public bool allowInput = true; //Allows player to move their character
 
     public Transform spawnPointPlayer1;
     public Transform spawnPointPlayer2;
@@ -64,29 +65,99 @@ public class GameManager : MonoBehaviour
         EndRoundMenu.SetActive(false);
         EndGameMenu.SetActive(false);
 
-        player.SetActive(false);
-        enemyPlayer.SetActive(false);
 
-        player1Script = player.GetComponent<PlaceHolderMOVEMENT>();
-        player2Script = enemyPlayer.GetComponent<Player2>();
+        //Decide if player 1 or 2
+        if (PhotonNetwork.CurrentRoom.PlayerCount < 2)
+        {
+            playerNum = 1;
+        }
+        else
+        {
+            playerNum = 2;
+        }
+
+        //player.SetActive(false);
+        //enemyPlayer.SetActive(false);
+
+        
+        gameState = GameState.WAITING_PLAYER;
+
+        PhotonNetwork.NetworkingClient.EventReceived += NetworkingClient_EventReceived;
     }
+
+    private void NetworkingClient_EventReceived(ExitGames.Client.Photon.EventData obj)
+    {
+        Debug.Log("Event Received");
+        if (obj.Code == 0)
+        {
+            player1Script.ReceiveDamage();
+            Debug.Log("Event Received: Take Damage");
+        }
+    }
+
+
 
     // Update is called once per frame
     void Update()
     {
         switch (gameState)
         {
+            case GameState.WAITING_PLAYER:
+
+                //Decide if player 1 or 2
+                if (PhotonNetwork.CurrentRoom.PlayerCount > 1 )
+                {
+                    if (playerNum == 1)
+                    {
+                        player = PhotonNetwork.Instantiate("Player", spawnPointPlayer1.position, Quaternion.identity);
+                    }
+                    else
+                    {
+                        player = PhotonNetwork.Instantiate("Player2", spawnPointPlayer2.position, Quaternion.identity);
+                    }
+
+                    player1Script = player.GetComponent<PlaceHolderMOVEMENT>();
+
+                    gameState = GameState.START_GAME;
+                }
+                else
+                {
+                    Debug.Log("Not Enough players yet");
+                }
+
+
+                break;
+
             case GameState.START_GAME:
 
-                allowInput = false;
+                //Find second player
+                if(enemyPlayer == null)
+                {
+                    if(playerNum == 1)
+                    {
+                        enemyPlayer = GameObject.Find("Player2(Clone)");
+                    }
+                    else
+                    {
+                        enemyPlayer = GameObject.Find("Player(Clone)");
+                    }
+                    
+                    player2Script = enemyPlayer.GetComponent<PlaceHolderMOVEMENT>();
+                }
+                else
+                {
+                    allowInput = false;
 
-                //Set Up new Game
-                round = 0;
+                    //Set Up new Game
+                    round = 0;
 
-                player1Usernam.text = client.username;
-                player2Username.text = client.enemyUsername;
+                    player1Script.playerUsernam.text = "Micu1";
+                    player2Script.playerUsernam.text = "Micu2";
 
-                gameState = GameState.NEXT_ROUND;
+                    gameState = GameState.NEXT_ROUND;
+                }
+
+                
 
                 break;
 
@@ -234,10 +305,10 @@ public class GameManager : MonoBehaviour
             player.SetActive(true);
             enemyPlayer.SetActive(true);
 
-            if (client.playerNum == 1) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
+            if (playerNum == 1) //Send player to the left (-x) .-------------------- This is only because of testing with two scenes at the same time
             {
-                player.transform.localPosition = new Vector3(spawnPointPlayer1.localPosition.x - client.screenOffset, spawnPointPlayer1.localPosition.y, spawnPointPlayer1.localPosition.z);
-                enemyPlayer.transform.localPosition = new Vector3(spawnPointPlayer2.localPosition.x - client.screenOffset, spawnPointPlayer2.localPosition.y, spawnPointPlayer2.localPosition.z);
+                player.transform.localPosition = new Vector3(spawnPointPlayer1.localPosition.x , spawnPointPlayer1.localPosition.y, spawnPointPlayer1.localPosition.z);
+                enemyPlayer.transform.localPosition = new Vector3(spawnPointPlayer2.localPosition.x , spawnPointPlayer2.localPosition.y, spawnPointPlayer2.localPosition.z);
             }
             else
             {
@@ -263,23 +334,23 @@ public class GameManager : MonoBehaviour
     }
 
     //PlayerNum refers to the player which will be acted upon 
-    public void MovePlayer(int playerNum,TransformMessage newTrans) //What to do when receiving movement from client
-    {
-        if(gameState == GameState.PLAYING)
-        {
-            if (playerNum == 2) //Send player to the left (-x)
-            {
-                enemyPlayer.transform.localPosition = newTrans.localPos; //new Vector3(newTrans.localPosition.x + client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
-                enemyPlayer.transform.localRotation = newTrans.rotation;
-            }
-            else
-            {
-                enemyPlayer.transform.localPosition = new Vector3(newTrans.localPos.x - client.screenOffset, newTrans.localPos.y, newTrans.localPos.z);
-                enemyPlayer.transform.localRotation = newTrans.rotation;
-            }
-        }
+    //public void MovePlayer(int playerNum,TransformMessage newTrans) //What to do when receiving movement from client
+    //{
+    //    if(gameState == GameState.PLAYING)
+    //    {
+    //        if (playerNum == 2) //Send player to the left (-x)
+    //        {
+    //            enemyPlayer.transform.localPosition = newTrans.localPos; //new Vector3(newTrans.localPosition.x + client.screenOffset, newTrans.localPosition.y, newTrans.localPosition.z);
+    //            enemyPlayer.transform.localRotation = newTrans.rotation;
+    //        }
+    //        else
+    //        {
+    //            enemyPlayer.transform.localPosition = new Vector3(newTrans.localPos.x - client.screenOffset, newTrans.localPos.y, newTrans.localPos.z);
+    //            enemyPlayer.transform.localRotation = newTrans.rotation;
+    //        }
+    //    }
         
-    }
+    //}
 
     void UpdatePause()
     {
